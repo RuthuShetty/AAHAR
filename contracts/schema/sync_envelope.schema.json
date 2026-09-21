@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/sync_envelope",
+  "title": "SyncEnvelope",
+  "description": "Universal record envelope for every syncable entity across all AAHAR surfaces. All mutable and immutable records are wrapped in this envelope before sync.",
+  "type": "object",
+  "required": [
+    "id",
+    "entity",
+    "schema_version",
+    "farm_id",
+    "device_id",
+    "captured_at",
+    "clock",
+    "sync_state",
+    "payload_hash",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUIDv7 — time-ordered, generated offline, globally collision-free. Encodes millisecond timestamp in first 48 bits.",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "entity": {
+      "type": "string",
+      "enum": [
+        "measurement",
+        "spectrum",
+        "farm",
+        "herd",
+        "bunker",
+        "probe_reading",
+        "advisory",
+        "batch",
+        "sync_run",
+        "device_calibration",
+        "ota_event"
+      ],
+      "description": "Discriminator for the payload type. Determines which schema validates the payload."
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the payload. CI fails if the generated code does not match the current version."
+    },
+    "farm_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "The farm this record belongs to. Used for row-level security on the server."
+    },
+    "device_id": {
+      "type": "string",
+      "pattern": "^AAHAR-(P|L|S|G)-[0-9]{6}$",
+      "description": "Canonical device identifier. P=Pro handheld, L=Lite handheld, S=Silage probe, G=Gateway. e.g. AAHAR-P-004821"
+    },
+    "captured_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp from the device clock at moment of capture. May differ from server_received_at when offline."
+    },
+    "server_received_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Set by the server on first receipt. Null until synced. Never modified after first set."
+    },
+    "clock": {
+      "type": "object",
+      "description": "Lamport logical clock for causal ordering across offline devices.",
+      "required": ["device", "counter"],
+      "additionalProperties": false,
+      "properties": {
+        "device": {
+          "type": "string",
+          "description": "The device_id that owns this Lamport counter."
+        },
+        "counter": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Monotonically increasing counter. Incremented on every local write and on receipt of a higher remote counter."
+        }
+      }
+    },
+    "sync_state": {
+      "type": "string",
+      "enum": ["pending", "in_flight", "synced", "conflict", "rejected"],
+      "description": "Local sync lifecycle state. 'pending'=queued for upload, 'in_flight'=upload attempted, 'synced'=server confirmed, 'conflict'=server returned conflict (mutable entities only), 'rejected'=server rejected with reason."
+    },
+    "sync_reject_reason": {
+      "type": ["string", "null"],
+      "description": "Human-readable rejection reason from server. Only set when sync_state='rejected'."
+    },
+    "payload_hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 of the canonical JSON-serialised payload. Used for idempotent upsert and corruption detection."
+    },
+    "payload": {
+      "type": "object",
+      "description": "The actual entity data. Validated against the entity-specific schema determined by the 'entity' discriminator."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string", "maxLength": 64 },
+      "maxItems": 20,
+      "description": "Optional free-form tags for filtering and organisation. e.g. ['pilot', 'suspect-batch', 'calibration']"
+    }
+  }
+}

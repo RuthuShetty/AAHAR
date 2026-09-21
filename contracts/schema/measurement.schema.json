@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/measurement",
+  "title": "Measurement",
+  "description": "Immutable record of a single feed quality test. Contains all 15 parameters from Table 4.1, confidence intervals, and derived outputs. Append-only — never updated after creation.",
+  "version": 3,
+  "type": "object",
+  "required": [
+    "feed_type",
+    "device_sku",
+    "scan_duration_ms",
+    "proximates",
+    "safety",
+    "derived",
+    "confidence_overall",
+    "in_distribution"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "feed_type": {
+      "type": "string",
+      "description": "FeedType enum key. Determines which sub-model was active during inference."
+    },
+    "device_sku": {
+      "type": "string",
+      "description": "DeviceSKU enum key. Determines which parameters are populated vs null."
+    },
+    "scan_duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 300000,
+      "description": "Wall-clock time from scan start to spectrum transfer complete, in milliseconds."
+    },
+    "inference_duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total on-device ML inference time across all models, in milliseconds."
+    },
+    "environment": {
+      "type": "object",
+      "description": "Ambient conditions from BME688 at time of scan. Used for spectral compensation.",
+      "required": ["temperature_c", "humidity_pct", "pressure_hpa"],
+      "properties": {
+        "temperature_c":  { "type": "number", "minimum": -20, "maximum": 60 },
+        "humidity_pct":   { "type": "number", "minimum": 0,   "maximum": 100 },
+        "pressure_hpa":   { "type": "number", "minimum": 800, "maximum": 1100 },
+        "voc_index":      { "type": ["number","null"],         "description": "BME688 VOC index 0–500. Null if sensor not warmed up." }
+      }
+    },
+    "proximates": {
+      "type": "object",
+      "description": "Proximate analysis results. All values on dry-matter basis unless noted.",
+      "required": ["moisture_pct", "crude_protein_pct_dm", "adf_pct_dm", "ndf_pct_dm"],
+      "properties": {
+        "moisture_pct": {
+          "$ref": "#/$defs/NumericResult",
+          "description": "Moisture as % of fresh weight. Model: PLS-R 12LV. Target RMSEP: ±1.2%"
+        },
+        "crude_protein_pct_dm": {
+          "$ref": "#/$defs/NumericResult",
+          "description": "Crude protein % DM (N×6.25). Model: 1D-CNN+PLS ensemble. Target RMSEP: ±1.5%"
+        },
+        "adf_pct_dm": {
+          "$ref": "#/$defs/NumericResult",
+          "description": "Acid detergent fibre % DM. Model: PLS-R. Target RMSEP: ±2.1%"
+        },
+        "ndf_pct_dm": {
+          "$ref": "#/$defs/NumericResult",
+          "description": "Neutral detergent fibre % DM. Model: PLS-R. Target RMSEP: ±2.6%"
+        },
+        "crude_fat_pct_dm": {
+          "oneOf": [{"$ref": "#/$defs/NumericResult"}, {"type": "null"}],
+          "description": "Ether extract / crude fat % DM. Target RMSEP: ±0.8%. Null for AAHAR Lite on certain feeds."
+        },
+        "ash_pct_dm": {
+          "oneOf": [{"$ref": "#/$defs/NumericResult"}, {"type": "null"}],
+          "description": "Total mineral / ash % DM. Target RMSEP: ±1.1%"
+        },
+        "me_mj_kg_dm": {
+          "oneOf": [{"$ref": "#/$defs/NumericResult"}, {"type": "null"}],
+          "description": "Metabolisable energy MJ/kg DM. Derived from CP/ADF/EE/Ash via MAFF equations. Target RMSEP: ±0.6 MJ"
+        },
+        "ca_p_status": {
+          "type": ["string", "null"],
+          "enum": ["DEFICIT", "ADEQUATE", "EXCESS", null],
+          "description": "Calcium/Phosphorus status from camera-read colorimetric strip. 3-class, F1 ≥ 0.85. Null if strip not used."
+        },
+        "ca_p_confidence": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Model confidence for Ca/P classification. Null if ca_p_status is null."
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "description": "Food safety and adulteration screening results.",
+      "required": ["adulteration", "mycotoxin", "mould"],
+      "properties": {
+        "adulteration": {
+          "type": "object",
+          "required": ["verdict", "confidence"],
+          "properties": {
+            "verdict": {
+              "type": "string",
+              "enum": ["CLEAN", "SUSPECT", "ADULTERATED"],
+              "description": "Overall adulteration verdict. SUSPECT if any single adulterant confidence 0.5–0.8, ADULTERATED if > 0.8."
+            },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "urea": {
+              "type": ["object", "null"],
+              "description": "Urea adulteration detection. F1 ≥ 0.93 at ≥1% w/w. Null if device not capable.",
+              "required": ["detected", "confidence"],
+              "properties": {
+                "detected":        { "type": "boolean" },
+                "confidence":      { "type": "number", "minimum": 0, "maximum": 1 },
+                "estimated_pct":   { "type": ["number","null"], "minimum": 0, "maximum": 10, "description": "Rough estimated % w/w. Only shown with screening disclaimer. Null if not detected." },
+                "strip_confirmed": { "type": ["boolean","null"], "description": "Urease strip confirmation via camera vision. Null if strip not used." }
+              }
+            },
+            "sand_silica": {
+              "type": ["object", "null"],
+              "required": ["detected", "confidence"],
+              "properties": {
+                "detected":      { "type": "boolean" },
+                "confidence":    { "type": "number", "minimum": 0, "maximum": 1 },
+                "estimated_pct": { "type": ["number","null"], "minimum": 0, "maximum": 20 }
+              }
+            },
+            "melamine_npn": {
+              "type": ["object", "null"],
+              "description": "Melamine/NPN anomaly detection via autoencoder. AUC ≥ 0.88. AAHAR Pro only.",
+              "required": ["anomaly_score", "flagged"],
+              "properties": {
+                "anomaly_score": { "type": "number", "minimum": 0, "description": "Reconstruction error normalised to [0, inf]. > threshold_melamine_anomaly flags as suspect." },
+                "flagged":       { "type": "boolean" }
+              }
+            }
+          }
+        },
+        "mycotoxin": {
+          "type": "object",
+          "description": "Mycotoxin screening. Screening only — never quantitative. AAHAR Pro only.",
+          "required": ["aflatoxin_band", "total_mycotoxin_band"],
+          "properties": {
+            "aflatoxin_band":        { "type": "string", "enum": ["LOW","MEDIUM","HIGH","UNKNOWN"] },
+            "aflatoxin_confidence":  { "type": "number", "minimum": 0, "maximum": 1 },
+            "total_mycotoxin_band":  { "type": "string", "enum": ["LOW","MEDIUM","HIGH","UNKNOWN"] },
+            "total_mycotoxin_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "fluorescence_score":    { "type": ["number","null"], "description": "Raw 365nm UV fluorescence intensity, device-normalised." },
+            "lab_referral_required": { "type": "boolean", "description": "True if aflatoxin_band == HIGH or confidence < 0.6." }
+          }
+        },
+        "mould": {
+          "type": "object",
+          "required": ["detected", "surface_coverage_pct"],
+          "properties": {
+            "detected":               { "type": "boolean" },
+            "surface_coverage_pct":   { "type": "number", "minimum": 0, "maximum": 100, "description": "Estimated % of image area with visible mould. MobileNetV3-seg, mIoU ≥ 0.72." },
+            "species_group":          { "type": ["string","null"], "enum": ["ASPERGILLUS","FUSARIUM","PENICILLIUM","MIXED","UNKNOWN", null] },
+            "confidence":             { "type": "number", "minimum": 0, "maximum": 1 },
+            "foreign_matter_detected":{ "type": "boolean", "description": "YOLO-nano foreign matter detection on macro images. F1 ≥ 0.88." },
+            "foreign_matter_types":   { "type": "array", "items": { "type": "string" }, "description": "e.g. ['plastic', 'stone', 'insect']" }
+          }
+        }
+      }
+    },
+    "derived": {
+      "type": "object",
+      "description": "Derived outputs computed from proximate + safety results.",
+      "required": ["feed_grade"],
+      "properties": {
+        "feed_grade": {
+          "type": "string",
+          "enum": ["A","B","C","REJECT"],
+          "description": "Overall feed grade. A→green, B→blue, C→amber, REJECT→red."
+        },
+        "feed_grade_reasons": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Short machine-readable reason codes that determined the grade. e.g. ['urea_detected', 'cp_below_minimum', 'high_moisture']"
+        },
+        "value_for_money": {
+          "type": ["object","null"],
+          "description": "Value comparison against local market rates. Null if price not entered.",
+          "required": ["price_paid_inr_per_kg", "cost_per_kg_protein_inr", "market_avg_inr", "verdict"],
+          "properties": {
+            "price_paid_inr_per_kg":  { "type": "number", "minimum": 0 },
+            "cost_per_kg_protein_inr":{ "type": "number", "minimum": 0, "description": "price_paid / (crude_protein_pct_dm / 100)" },
+            "market_avg_inr":         { "type": "number", "minimum": 0, "description": "From offline-bundled regional price table." },
+            "overpaid_inr":           { "type": "number", "description": "Negative = good deal. Positive = overpaid." },
+            "verdict":                { "type": "string", "enum": ["GOOD_VALUE","FAIR","OVERPRICED","GROSSLY_OVERPRICED"] }
+          }
+        },
+        "storage_action": {
+          "type": ["string","null"],
+          "description": "Plain-language storage advisory key, resolved to locale string in the UI. e.g. 'dry_within_3_days'"
+        },
+        "safety_action": {
+          "type": ["string","null"],
+          "description": "Plain-language safety action key. e.g. 'do_not_feed_pregnant'"
+        }
+      }
+    },
+    "herd_context_id": {
+      "type": ["string","null"],
+      "format": "uuid",
+      "description": "The herd record used for ration balancing at time of test. Null if no herd profile set up."
+    },
+    "advisory_id": {
+      "type": ["string","null"],
+      "format": "uuid",
+      "description": "UUIDv7 of the advisory record generated from this measurement."
+    },
+    "price_paid_inr_per_kg": {
+      "type": ["number","null"],
+      "minimum": 0,
+      "description": "Optional: price the farmer paid. Enables value-for-money calculation."
+    },
+    "spectrum_id": {
+      "type": ["string","null"],
+      "format": "uuid",
+      "description": "UUIDv7 of the raw spectrum record stored separately (large payload)."
+    },
+    "macro_image_ids": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "maxItems": 4,
+      "description": "UUIDv7s of the 4-angle macro photo records stored separately."
+    },
+    "confidence_overall": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Ensemble confidence across all active models. < 0.6 triggers 'low confidence' UI warning."
+    },
+    "in_distribution": {
+      "type": "boolean",
+      "description": "False if Mahalanobis distance of the spectrum from training manifold exceeds threshold. If false, UI must show 'unusual sample — send to lab' and refuse to print a grade."
+    },
+    "model_versions": {
+      "type": "object",
+      "description": "Version string of each model bundle active during inference. For audit and retraining queue.",
+      "additionalProperties": { "type": "string" }
+    },
+    "local_advisory_text": {
+      "type": ["object","null"],
+      "description": "Keyed by Language enum. Pre-rendered advisory text stored with the record for offline display.",
+      "additionalProperties": { "type": "string" }
+    },
+    "qr_batch_id": {
+      "type": ["string","null"],
+      "format": "uuid",
+      "description": "If this test was triggered by scanning a QR batch, the batch UUID. Enables declared-vs-measured diff."
+    }
+  },
+  "$defs": {
+    "NumericResult": {
+      "type": "object",
+      "description": "A numeric measurement with confidence interval. Never display value without ci_low/ci_high.",
+      "required": ["value", "ci_low", "ci_high", "confidence", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "value":      { "type": "number", "description": "Point estimate from the model." },
+        "ci_low":     { "type": "number", "description": "Lower bound of the 95% confidence interval." },
+        "ci_high":    { "type": "number", "description": "Upper bound of the 95% confidence interval." },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Model confidence in this prediction. < 0.6 = low confidence." },
+        "unit":       { "type": "string", "description": "Unit key from units.json, e.g. 'pct_dm', 'mj_per_kg_dm'" }
+      }
+    }
+  }
+}

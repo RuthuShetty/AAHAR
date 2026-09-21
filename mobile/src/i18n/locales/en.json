@@ -1,0 +1,68 @@
+{
+  "app_name": "AAHAR",
+  "tagline": "Smart NIR Feed & Silage Testing",
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "done": "Done",
+    "retry": "Retry",
+    "offline": "Offline",
+    "online": "Online",
+    "airplane_mode": "Airplane Mode",
+    "syncing": "Syncing..."
+  },
+  "home": {
+    "test_feed_btn": "TEST FEED",
+    "test_feed_sub": "Scan feed sample in 2 minutes",
+    "recent_tests": "Recent Test Results",
+    "no_recent_tests": "No tests yet. Tap 'TEST FEED' to scan your first sample.",
+    "bunker_alerts": "Bunker Spoilage Alerts",
+    "sync_status": "Sync Status",
+    "pending_records": "saved on phone, will sync when connected"
+  },
+  "nav": {
+    "home": "Home",
+    "bunkers": "Bunkers",
+    "history": "History",
+    "sync": "Sync",
+    "settings": "Settings"
+  },
+  "scan": {
+    "select_feed": "Select Feed Type",
+    "pairing_device": "Pairing NIR Scanner",
+    "fill_chamber": "Fill Sample Chamber",
+    "fill_chamber_instruction": "Twist open chamber, fill level with sample, lock tightly.",
+    "start_scan": "Start Scan",
+    "scanning_progress": "Scanning in progress...",
+    "sweep_bands": "Sweeping 900–1700 nm NIR bands",
+    "abort_scan": "Abort Scan"
+  },
+  "results": {
+    "title": "Analysis Result",
+    "grade_a": "Grade A — Excellent Quality",
+    "grade_b": "Grade B — Acceptable Quality",
+    "grade_c": "Grade C — Substandard Quality",
+    "grade_reject": "REJECT — Unsafe / Adulterated Feed",
+    "nutrition_tab": "Nutrition",
+    "safety_tab": "Safety & Adulterants",
+    "advisory_tab": "Advisory & Ration",
+    "crude_protein": "Crude Protein",
+    "moisture": "Moisture / Dry Matter",
+    "energy": "Metabolisable Energy",
+    "urea": "Urea Adulteration",
+    "aflatoxin": "Aflatoxin B1 Risk",
+    "silica": "Sand / Silica",
+    "vfm": "Value for Money",
+    "share_whatsapp": "Share via WhatsApp",
+    "compare": "Compare",
+    "lab_referral": "Send to NABL Lab"
+  },
+  "advisory": {
+    "ration_correction": "Ration Correction",
+    "herd_impact": "Herd Health Impact",
+    "storage_action": "Storage Advice",
+    "spoken_summary": "Listen to Advisory"
+  }
+}

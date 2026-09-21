@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "AAHAR",
+    "slug": "aahar-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "aahar",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#121417"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.aahar.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "AAHAR requires Bluetooth to communicate with the handheld NIR feed scanner.",
+        "NSBluetoothPeripheralUsageDescription": "AAHAR connects to the handheld spectrometer and silage probe over BLE.",
+        "NSCameraUsageDescription": "AAHAR uses the camera to scan batch QR codes and feed samples."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#121417"
+      },
+      "package": "org.aahar.app",
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

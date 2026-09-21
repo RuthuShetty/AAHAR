@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/herd",
+  "title": "Herd",
+  "description": "Mutable herd composition record for a farm. Used by the advisory engine to compute ration correction. Field-level Lamport clocks for offline merge.",
+  "version": 2,
+  "type": "object",
+  "required": ["farm_id", "animals", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "farm_id": { "type": "string", "format": "uuid" },
+    "animals": {
+      "type": "array",
+      "description": "Individual or group animal records. Groups share the same breed/stage.",
+      "items": {
+        "type": "object",
+        "required": ["id", "breed", "lactation_stage", "count"],
+        "additionalProperties": false,
+        "properties": {
+          "id":            { "type": "string", "format": "uuid", "description": "UUIDv7 for this animal/group record." },
+          "tag":           { "type": ["string","null"], "maxLength": 30, "description": "Ear tag or name, farmer-assigned." },
+          "breed":         { "type": "string", "description": "HerdBreed enum key." },
+          "lactation_stage": { "type": "string", "description": "LactationStage enum key." },
+          "count":         { "type": "integer", "minimum": 1, "description": "Number of animals in this group (1 for individual)." },
+          "body_weight_kg":{ "type": ["number","null"], "minimum": 50, "maximum": 900 },
+          "milk_yield_kg_day": { "type": ["number","null"], "minimum": 0, "maximum": 60, "description": "Average daily milk yield for this group. Used for ME and CP requirement calculation." },
+          "milk_fat_pct":  { "type": ["number","null"], "minimum": 2, "maximum": 8 },
+          "days_in_milk":  { "type": ["integer","null"], "minimum": 0 },
+          "pregnancy_week":{ "type": ["integer","null"], "minimum": 0, "maximum": 42, "description": "For pregnant animals. Used to increase nutritional requirements in third trimester." },
+          "notes":         { "type": ["string","null"], "maxLength": 500 }
+        }
+      }
+    },
+    "feed_on_hand": {
+      "type": "array",
+      "description": "Current feed stocks. Used by ration balancer to work with what the farmer actually has.",
+      "items": {
+        "type": "object",
+        "required": ["feed_type", "quantity_kg"],
+        "properties": {
+          "feed_type":    { "type": "string", "description": "FeedType enum key." },
+          "quantity_kg":  { "type": "number", "minimum": 0 },
+          "measurement_id": { "type": ["string","null"], "format": "uuid", "description": "Link to the most recent test result for this stock." }
+        }
+      }
+    },
+    "total_animals": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Denormalised count. Must equal sum of animals[].count. Validated on write."
+    },
+    "fields": {
+      "type": "object",
+      "description": "Field-level Lamport clocks for offline merge.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["device", "counter"],
+        "properties": {
+          "device":  { "type": "string" },
+          "counter": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

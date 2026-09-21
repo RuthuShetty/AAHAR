@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/enums",
+  "title": "AAHAR System Enumerations",
+  "description": "Single source of truth for all enums. Generated into TypeScript union types, Python Enum classes, and C++ enum classes. Adding an entry here triggers codegen on next CI run.",
+  "version": 1,
+  "enums": {
+    "FeedType": {
+      "description": "Standardised feed categories supported by the AAHAR NIR models.",
+      "values": [
+        { "key": "MAIZE_SILAGE",      "label_en": "Maize Silage",       "label_hi": "मक्का साइलेज",      "label_pa": "ਮੱਕੀ ਸਾਈਲੇਜ",       "icon": "🌽", "model_group": "silage" },
+        { "key": "WHEAT_STRAW",       "label_en": "Wheat Straw",        "label_hi": "गेहूं का भूसा",       "label_pa": "ਕਣਕ ਦੀ ਤੂੜੀ",        "icon": "🌾", "model_group": "roughage" },
+        { "key": "COTTONSEED_CAKE",   "label_en": "Cottonseed Cake",    "label_hi": "कपास की खल",         "label_pa": "ਕਪਾਹ ਦੀ ਖੱਲ",         "icon": "🫘", "model_group": "concentrate" },
+        { "key": "MUSTARD_CAKE",      "label_en": "Mustard Cake",       "label_hi": "सरसों की खल",        "label_pa": "ਰਾਈ ਦੀ ਖੱਲ",          "icon": "🫘", "model_group": "concentrate" },
+        { "key": "TMR",               "label_en": "Total Mixed Ration",  "label_hi": "कुल मिश्रित राशन",  "label_pa": "ਕੁੱਲ ਮਿਲਾਇਆ ਰਾਸ਼ਨ",   "icon": "🥣", "model_group": "tmr" },
+        { "key": "GREEN_FODDER",      "label_en": "Green Fodder",       "label_hi": "हरा चारा",            "label_pa": "ਹਰਾ ਚਾਰਾ",            "icon": "🌿", "model_group": "roughage" },
+        { "key": "CONCENTRATE_MIX",   "label_en": "Concentrate Mix",    "label_hi": "सांद्र मिश्रण",      "label_pa": "ਕੰਸਨਟ੍ਰੇਟ ਮਿਕਸ",      "icon": "🧪", "model_group": "concentrate" },
+        { "key": "BERSEEM",           "label_en": "Berseem",            "label_hi": "बरसीम",               "label_pa": "ਬਰਸੀਮ",               "icon": "🌱", "model_group": "legume" },
+        { "key": "NAPIER",            "label_en": "Napier Grass",       "label_hi": "नेपियर घास",          "label_pa": "ਨੇਪੀਅਰ ਘਾਹ",          "icon": "🌾", "model_group": "roughage" },
+        { "key": "SORGHUM_SILAGE",    "label_en": "Sorghum Silage",     "label_hi": "ज्वार साइलेज",        "label_pa": "ਜਵਾਰ ਸਾਈਲੇਜ",         "icon": "🌽", "model_group": "silage" },
+        { "key": "GROUNDNUT_CAKE",    "label_en": "Groundnut Cake",     "label_hi": "मूंगफली की खल",      "label_pa": "ਮੂੰਗਫਲੀ ਦੀ ਖੱਲ",      "icon": "🫘", "model_group": "concentrate" },
+        { "key": "RICE_STRAW",        "label_en": "Rice Straw",         "label_hi": "धान का पुआल",         "label_pa": "ਝੋਨੇ ਦੀ ਤੂੜੀ",        "icon": "🌾", "model_group": "roughage" },
+        { "key": "SOYBEAN_MEAL",      "label_en": "Soybean Meal",       "label_hi": "सोयाबीन की खल",      "label_pa": "ਸੋਇਆਬੀਨ ਮੀਲ",         "icon": "🫘", "model_group": "concentrate" },
+        { "key": "MAIZE_GRAIN",       "label_en": "Maize Grain",        "label_hi": "मक्का का दाना",       "label_pa": "ਮੱਕੀ ਦਾ ਦਾਣਾ",        "icon": "🌽", "model_group": "grain" },
+        { "key": "OTHER",             "label_en": "Other",              "label_hi": "अन्य",                "label_pa": "ਹੋਰ",                  "icon": "❓", "model_group": "other" }
+      ]
+    },
+    "FeedGrade": {
+      "description": "Overall quality grade assigned to a tested feed sample.",
+      "values": [
+        { "key": "A", "label_en": "Grade A — Excellent",  "label_hi": "ग्रेड A — उत्तम",   "colour_hex": "#2E7D32", "colour_name": "green",  "spoken_en": "This feed is excellent quality." },
+        { "key": "B", "label_en": "Grade B — Good",       "label_hi": "ग्रेड B — अच्छा",   "colour_hex": "#1565C0", "colour_name": "blue",   "spoken_en": "This feed is of good quality." },
+        { "key": "C", "label_en": "Grade C — Fair",       "label_hi": "ग्रेड C — ठीक",     "colour_hex": "#F9A825", "colour_name": "amber",  "spoken_en": "This feed is fair. Use with care." },
+        { "key": "REJECT", "label_en": "REJECT",          "label_hi": "अस्वीकार",           "colour_hex": "#C62828", "colour_name": "red",    "spoken_en": "Do not feed this to your animals." }
+      ]
+    },
+    "SyncState": {
+      "description": "Lifecycle state of a record's synchronisation with the cloud.",
+      "values": [
+        { "key": "pending",    "description": "Queued locally, not yet attempted." },
+        { "key": "in_flight",  "description": "Upload attempted, awaiting server confirmation." },
+        { "key": "synced",     "description": "Server confirmed receipt and stored." },
+        { "key": "conflict",   "description": "Server returned a conflict (mutable entities only)." },
+        { "key": "rejected",   "description": "Server rejected — see sync_reject_reason." }
+      ]
+    },
+    "ScanStatus": {
+      "description": "Real-time status of an active NIR scan on the handheld device.",
+      "values": [
+        { "key": "idle",          "description": "Device ready, chamber closed." },
+        { "key": "chamber_open",  "description": "Sample chamber door is open." },
+        { "key": "warming_up",    "description": "Light source stabilising (< 10 s)." },
+        { "key": "scanning",      "description": "Active spectral sweep in progress." },
+        { "key": "transferring",  "description": "BLE transfer to phone in progress." },
+        { "key": "complete",      "description": "Transfer complete, inference starting." },
+        { "key": "error",         "description": "Scan failed — see error_code." },
+        { "key": "calibrating",   "description": "White/dark reference calibration running." }
+      ]
+    },
+    "AdulterantType": {
+      "description": "Detected or screened adulterant types.",
+      "values": [
+        { "key": "UREA",        "label_en": "Urea",            "label_hi": "यूरिया",       "severity": "high",     "source": "FSSAI notification 2.6.3" },
+        { "key": "SAND_SILICA", "label_en": "Sand / Silica",   "label_hi": "रेत / सिलिका", "severity": "medium",   "source": "FSSAI" },
+        { "key": "MELAMINE",    "label_en": "Melamine / NPN",  "label_hi": "मेलामाइन",     "severity": "critical", "source": "FSSAI, EFSA" },
+        { "key": "NONE",        "label_en": "None detected",   "label_hi": "कुछ नहीं",      "severity": "none",     "source": null }
+      ]
+    },
+    "ToxinBand": {
+      "description": "Screening result band for mycotoxin risk. Never a quantitative claim.",
+      "values": [
+        { "key": "LOW",     "label_en": "Low Risk",       "label_hi": "कम जोखिम",     "aflatoxin_ppb_approx": "< 20",  "colour_hex": "#2E7D32" },
+        { "key": "MEDIUM",  "label_en": "Medium Risk",    "label_hi": "मध्यम जोखिम",  "aflatoxin_ppb_approx": "20–50", "colour_hex": "#F9A825" },
+        { "key": "HIGH",    "label_en": "High Risk",      "label_hi": "अधिक जोखिम",   "aflatoxin_ppb_approx": "> 50",  "colour_hex": "#C62828" },
+        { "key": "UNKNOWN", "label_en": "Could not assess","label_hi": "अज्ञात",       "aflatoxin_ppb_approx": null,    "colour_hex": "#757575" }
+      ]
+    },
+    "Language": {
+      "description": "Supported languages for UI, voice, and advisory content.",
+      "values": [
+        { "key": "en", "label": "English",    "rtl": false, "tts_voice": "en-IN-NeerjaNeural" },
+        { "key": "hi", "label": "हिन्दी",      "rtl": false, "tts_voice": "hi-IN-SwaraNeural" },
+        { "key": "pa", "label": "ਪੰਜਾਬੀ",      "rtl": false, "tts_voice": "pa-IN-GurpreetNeural" },
+        { "key": "mr", "label": "मराठी",       "rtl": false, "tts_voice": "mr-IN-AarohiNeural" },
+        { "key": "gu", "label": "ગુજરાતી",    "rtl": false, "tts_voice": "gu-IN-DhwaniNeural" },
+        { "key": "te", "label": "తెలుగు",      "rtl": false, "tts_voice": "te-IN-MohanNeural" },
+        { "key": "kn", "label": "ಕನ್ನಡ",       "rtl": false, "tts_voice": "kn-IN-GaganNeural" },
+        { "key": "bn", "label": "বাংলা",       "rtl": false, "tts_voice": "bn-IN-TanishaaNeural" }
+      ]
+    },
+    "DeviceSKU": {
+      "description": "Hardware SKU determines which parameters are available in the app.",
+      "values": [
+        { "key": "AAHAR_PRO",  "label": "AAHAR Pro",  "sensor": "Hamamatsu C12880MA", "capabilities": ["nutrition", "adulteration", "mycotoxin", "mould", "foreign_matter"] },
+        { "key": "AAHAR_LITE", "label": "AAHAR Lite", "sensor": "AS7265x",             "capabilities": ["nutrition", "adulteration_urea", "mould"] }
+      ]
+    },
+    "ProbeStatus": {
+      "description": "Connection and operational status of a silage probe node.",
+      "values": [
+        { "key": "ONLINE_LORA",   "description": "Connected via LoRaWAN gateway." },
+        { "key": "ONLINE_BLE",    "description": "Connected via BLE relay through phone." },
+        { "key": "OFFLINE",       "description": "No reading in last 2× sample interval." },
+        { "key": "LOW_BATTERY",   "description": "Battery below 15%." },
+        { "key": "FAULT",         "description": "Sensor fault — see error_code." },
+        { "key": "CALIBRATING",   "description": "In-situ calibration running." }
+      ]
+    },
+    "FermentationPhase": {
+      "description": "Silage fermentation phase derived from probe readings.",
+      "values": [
+        { "key": "AEROBIC",        "label_en": "Aerobic Phase",         "days_typical": "0–3",   "description": "O₂ present, temperature rising. Normal." },
+        { "key": "ACTIVE_ANAEROBIC","label_en": "Active Fermentation",  "days_typical": "3–21",  "description": "Lactic acid production, pH falling. Good." },
+        { "key": "STABLE",         "label_en": "Stable Preservation",  "days_typical": "21+",   "description": "pH < 4.5, stable. Well preserved." },
+        { "key": "AEROBIC_SPOILAGE","label_en": "Aerobic Spoilage",    "days_typical": "varies","description": "O₂ ingress after face opening. Act now." },
+        { "key": "CLOSTRIDIAL",    "label_en": "Clostridial Risk",     "days_typical": "varies","description": "pH > 5.0, NH₃ rising. Poor fermentation." }
+      ]
+    },
+    "HerdBreed": {
+      "description": "Common dairy cattle breeds in India. Used for nutrition requirement lookup.",
+      "values": [
+        { "key": "HF",         "label_en": "Holstein-Friesian",    "type": "exotic" },
+        { "key": "JERSEY",     "label_en": "Jersey",               "type": "exotic" },
+        { "key": "HF_CROSS",   "label_en": "HF Crossbred",         "type": "crossbred" },
+        { "key": "JERSEY_CROSS","label_en": "Jersey Crossbred",    "type": "crossbred" },
+        { "key": "SAHIWAL",    "label_en": "Sahiwal",              "type": "indigenous" },
+        { "key": "GIR",        "label_en": "Gir",                  "type": "indigenous" },
+        { "key": "THARPARKAR", "label_en": "Tharparkar",           "type": "indigenous" },
+        { "key": "MURRAH",     "label_en": "Murrah Buffalo",        "type": "buffalo" },
+        { "key": "SURTI",      "label_en": "Surti Buffalo",        "type": "buffalo" },
+        { "key": "NILI_RAVI",  "label_en": "Nili-Ravi Buffalo",   "type": "buffalo" },
+        { "key": "OTHER",      "label_en": "Other / Unknown",      "type": "other" }
+      ]
+    },
+    "LactationStage": {
+      "description": "Stage of the lactation cycle. Used for nutritional requirement calculation.",
+      "values": [
+        { "key": "EARLY",       "label_en": "Early Lactation",    "days_range": "0–100",   "label_hi": "प्रारंभिक दुग्धकाल" },
+        { "key": "PEAK",        "label_en": "Peak Lactation",     "days_range": "30–60",   "label_hi": "चरम दुग्धकाल" },
+        { "key": "MID",         "label_en": "Mid Lactation",      "days_range": "100–200", "label_hi": "मध्य दुग्धकाल" },
+        { "key": "LATE",        "label_en": "Late Lactation",     "days_range": "200–305", "label_hi": "अंतिम दुग्धकाल" },
+        { "key": "DRY",         "label_en": "Dry Period",         "days_range": "305–365", "label_hi": "सूखी अवधि" },
+        { "key": "PREGNANT",    "label_en": "Pregnant",           "days_range": null,      "label_hi": "गर्भवती" },
+        { "key": "HEIFER",      "label_en": "Heifer / Growing",   "days_range": null,      "label_hi": "बछड़ी" }
+      ]
+    },
+    "AlertSeverity": {
+      "description": "Severity level for push/SMS alerts.",
+      "values": [
+        { "key": "INFO",     "colour_hex": "#1565C0", "sms_eligible": false },
+        { "key": "CAUTION",  "colour_hex": "#F9A825", "sms_eligible": true  },
+        { "key": "CRITICAL", "colour_hex": "#C62828", "sms_eligible": true  }
+      ]
+    }
+  }
+}

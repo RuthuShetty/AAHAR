@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: aahar-cloud
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn cloud.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENVIRONMENT
+        value: development
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./aahar_cloud.db
+      - key: CORS_ORIGINS
+        value: "*" # We will tighten this once Vercel URL is known

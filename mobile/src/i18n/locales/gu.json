@@ -1,0 +1,68 @@
+{
+  "app_name": "આહાર (AAHAR)",
+  "tagline": "સ્માર્ટ NIR પશુ આહાર અને સાયલેજ ગુણવત્તા પરીક્ષણ",
+  "common": {
+    "save": "સાચવો",
+    "cancel": "રદ કરો",
+    "continue": "આગળ વધો",
+    "back": "પાછળ",
+    "done": "પૂર્ણ",
+    "retry": "ફરી પ્રયાસ કરો",
+    "offline": "ઑફલાઇન",
+    "online": "ઑનલાઇન",
+    "airplane_mode": "એરપ્લેન મોડ",
+    "syncing": "સિંક થઈ રહ્યું છે..."
+  },
+  "home": {
+    "test_feed_btn": "ખોરાક તપાસો",
+    "test_feed_sub": "2 મિનિટમાં ખોરાકની ગુણવત્તા જાણો",
+    "recent_tests": "તાજેતરના પરીક્ષણો",
+    "no_recent_tests": "કોઈ પરીક્ષણ નથી. 'ખોરાક તપાસો' બટન દબાવો.",
+    "bunker_alerts": "સાયલેજ બંકર ચેતવણીઓ",
+    "sync_status": "સિંક સ્થિતિ",
+    "pending_records": "ફોનમાં સંગ્રહિત, નેટવર્ક મળતાં સિંક થશે"
+  },
+  "nav": {
+    "home": "હોમ",
+    "bunkers": "બંકર",
+    "history": "ઇતિહાસ",
+    "sync": "સિંક કેન્દ્ર",
+    "settings": "સેટિંગ્સ"
+  },
+  "scan": {
+    "select_feed": "ખોરાકનો પ્રકાર પસંદ કરો",
+    "pairing_device": "NIR સ્કેનર સાથે જોડાણ",
+    "fill_chamber": "નમૂના ચેમ્બર ભરો",
+    "fill_chamber_instruction": "ચેમ્બર ખોલો, નમૂનો સરખો ભરો અને ચુસ્તપણે બંધ કરો.",
+    "start_scan": "સ્કેન શરૂ કરો",
+    "scanning_progress": "પરીક્ષણ ચાલુ છે...",
+    "sweep_bands": "900–1700 nm NIR તરંગો દ્વારા પરીક્ષણ",
+    "abort_scan": "પરીક્ષણ રદ કરો"
+  },
+  "results": {
+    "title": "પરીક્ષણ પરિણામ",
+    "grade_a": "ગ્રેડ એ — ઉત્તમ ગુણવત્તા",
+    "grade_b": "ગ્રેડ બી — સ્વીકાર્ય ગુણવત્તા",
+    "grade_c": "ગ્રેડ સી — ઓછી ગુણવત્તા",
+    "grade_reject": "નકારો — અસુરક્ષિત / ભેળસેળયુક્ત ખોરાક",
+    "nutrition_tab": "પોષક તત્વો",
+    "safety_tab": "સુરક્ષા અને ભેળસેળ",
+    "advisory_tab": "સલાહ અને આહાર",
+    "crude_protein": "ક્રૂડ પ્રોટીન",
+    "moisture": "ભેજ / સૂકો પદાર્થ",
+    "energy": "ઊર્જા સ્તર",
+    "urea": "યુરિયા ભેળસેળ",
+    "aflatoxin": "એફ્લેટોક્સિન ફૂગનું જોખમ",
+    "silica": "રેતી / સિલિકા",
+    "vfm": "પૈસાનું મૂલ્ય",
+    "share_whatsapp": "વ્હોટ્સએપ પર શેર કરો",
+    "compare": "સરખામણી કરો",
+    "lab_referral": "લેબ (NABL) મોકલો"
+  },
+  "advisory": {
+    "ration_correction": "આહાર સુધારો",
+    "herd_impact": "પશુ સ્વાસ્થ્ય પર અસર",
+    "storage_action": "સંગ્રહ સલાહ",
+    "spoken_summary": "સલાહ સાંભળો"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "app_name": "ਆਹਾਰ (AAHAR)",
+  "tagline": "ਸਮਾਰਟ NIR ਪਸ਼ੂ ਖ਼ੁਰਾਕ ਅਤੇ ਸਾਈਲੇਜ ਪਰਖ",
+  "common": {
+    "save": "ਸੰਭਾਲੋ",
+    "cancel": "ਰੱਦ ਕਰੋ",
+    "continue": "ਅੱਗੇ ਵਧੋ",
+    "back": "ਪਿੱਛੇ",
+    "done": "ਮੁਕੰਮਲ",
+    "retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+    "offline": "ਆਫ਼ਲਾਈਨ",
+    "online": "ਔਨਲਾਈਨ",
+    "airplane_mode": "ਹਵਾਈ ਮੋਡ (Airplane Mode)",
+    "syncing": "ਸਿੰਕ ਹੋ ਰਿਹਾ ਹੈ..."
+  },
+  "home": {
+    "test_feed_btn": "ਖ਼ੁਰਾਕ ਪਰਖੋ",
+    "test_feed_sub": "2 ਮਿੰਟਾਂ ਵਿੱਚ ਖ਼ੁਰਾਕ ਦੀ ਸ਼ੁੱਧਤਾ ਜਾਣੋ",
+    "recent_tests": "ਹਾਲੀਆ ਪਰਖਾਂ",
+    "no_recent_tests": "ਕੋਈ ਪਰਖ ਨਹੀਂ ਹੋਈ। 'ਖ਼ੁਰਾਕ ਪਰਖੋ' ਬਟਨ ਦਬਾਓ।",
+    "bunker_alerts": "ਸਾਈਲੇਜ ਬੰਕਰ ਚੇਤਾਵਨੀਆਂ",
+    "sync_status": "ਸਿੰਕ ਹਾਲਤ",
+    "pending_records": "ਫ਼ੋਨ ਵਿੱਚ ਸੁਰੱਖਿਅਤ, ਨੈੱਟਵਰਕ ਮਿਲਣ 'ਤੇ ਸਿੰਕ ਹੋਵੇਗਾ"
+  },
+  "nav": {
+    "home": "ਹੋਮ",
+    "bunkers": "ਬੰਕਰ",
+    "history": "ਇਤਿਹਾਸ",
+    "sync": "ਸਿੰਕ ਕੇਂਦਰ",
+    "settings": "ਸੈਟਿੰਗਾਂ"
+  },
+  "scan": {
+    "select_feed": "ਚਾਰੇ ਦੀ ਕਿਸਮ ਚੁਣੋ",
+    "pairing_device": "NIR ਸਕੈਨਰ ਨਾਲ ਜੁੜ ਰਿਹਾ ਹੈ",
+    "fill_chamber": "ਨਮੂਨਾ ਖ਼ਾਨਾ ਭਰੋ",
+    "fill_chamber_instruction": "ਖ਼ਾਨਾ ਖੋਲ੍ਹੋ, ਨਮੂਨਾ ਬਰਾਬਰ ਭਰੋ ਅਤੇ ਚੰਗੀ ਤਰ੍ਹਾਂ ਬੰਦ ਕਰੋ।",
+    "start_scan": "ਸਕੈਨ ਸ਼ੁਰੂ ਕਰੋ",
+    "scanning_progress": "ਪਰਖ ਜਾਰੀ ਹੈ...",
+    "sweep_bands": "900–1700 nm NIR ਤਰੰਗਾਂ ਨਾਲ ਪਰਖ ਹੋ ਰਹੀ ਹੈ",
+    "abort_scan": "ਪਰਖ ਰੋਕੋ"
+  },
+  "results": {
+    "title": "ਪਰਖ ਨਤੀਜਾ",
+    "grade_a": "ਗ੍ਰੇਡ ਏ — ਉੱਤਮ ਕੁਆਲਿਟੀ",
+    "grade_b": "ਗ੍ਰੇਡ ਬੀ — ਤਸੱਲੀਬਖ਼ਸ਼ ਕੁਆਲਿਟੀ",
+    "grade_c": "ਗ੍ਰੇਡ ਸੀ — ਘੱਟ ਕੁਆਲਿਟੀ",
+    "grade_reject": "ਰੱਦ — ਅਸੁਰੱਖਿਅਤ / ਮਿਲਾਵਟੀ ਖ਼ੁਰਾਕ",
+    "nutrition_tab": "ਪੋਸ਼ਣ ਤੱਤ",
+    "safety_tab": "ਸੁਰੱਖਿਆ ਅਤੇ ਮਿਲਾਵਟ",
+    "advisory_tab": "ਸਲਾਹ ਅਤੇ ਰਾਸ਼ਨ",
+    "crude_protein": "ਕੱਚਾ ਪ੍ਰੋਟੀਨ",
+    "moisture": "ਨਮੀ / ਸੁੱਕਾ ਪਦਾਰਥ",
+    "energy": "ਊਰਜਾ ਪੱਧਰ",
+    "urea": "ਯੂਰੀਆ ਮਿਲਾਵਟ",
+    "aflatoxin": "ਉੱਲੀ (Aflatoxin) ਖ਼ਤਰਾ",
+    "silica": "ਰੇਤ / ਸਿਲਿਕਾ",
+    "vfm": "ਪੈਸੇ ਦੀ ਵਾਜਬੀਅਤ",
+    "share_whatsapp": "ਵਟਸਐਪ 'ਤੇ ਭੇਜੋ",
+    "compare": "ਤੁਲਨਾ ਕਰੋ",
+    "lab_referral": "ਲੈਬਾਰਟਰੀ (NABL) ਭੇਜੋ"
+  },
+  "advisory": {
+    "ration_correction": "ਰਾਸ਼ਨ ਸੋਧ",
+    "herd_impact": "ਪਸ਼ੂਆਂ ਦੀ ਸਿਹਤ 'ਤੇ ਅਸਰ",
+    "storage_action": "ਭੰਡਾਰਨ ਹਦਾਇਤਾਂ",
+    "spoken_summary": "ਸਲਾਹ ਸੁਣੋ"
+  }
+}

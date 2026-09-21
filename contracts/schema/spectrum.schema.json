@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/spectrum",
+  "title": "Spectrum",
+  "description": "Raw NIR spectrum payload. Immutable, large — stored separately from measurement. 228 bands × 3 repeats. Wi-Fi only sync by default.",
+  "version": 2,
+  "type": "object",
+  "required": ["measurement_id", "device_sku", "sensor_model", "wavelengths_nm", "intensities_raw", "intensities_corrected", "dark_reference", "white_reference", "repeats"],
+  "additionalProperties": false,
+  "properties": {
+    "measurement_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUIDv7 of the parent measurement record."
+    },
+    "device_sku": { "type": "string", "description": "DeviceSKU enum key." },
+    "sensor_model": {
+      "type": "string",
+      "enum": ["C12880MA", "AS7265x"],
+      "description": "Physical sensor model. Determines wavelength grid and calibration polynomial."
+    },
+    "wavelengths_nm": {
+      "type": "array",
+      "items": { "type": "number", "minimum": 300, "maximum": 1800 },
+      "minItems": 18,
+      "maxItems": 228,
+      "description": "Wavelength axis in nanometres. Length determines number of bands. Hamamatsu: 228 bands 340–850nm. AS7265x: 18 bands 410–940nm."
+    },
+    "intensities_raw": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "description": "One repeat: raw ADC counts per band."
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "description": "Outer array = repeats (3 for production scan). Inner array = counts per wavelength band."
+    },
+    "intensities_corrected": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "description": "Corrected reflectance: (raw - dark) / (white - dark). Same shape as intensities_raw."
+    },
+    "dark_reference": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0, "maximum": 65535 },
+      "description": "Dark reference counts captured with shutter closed. Same length as wavelengths_nm."
+    },
+    "white_reference": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 0, "maximum": 65535 },
+      "description": "White reference counts from Spectralon tile. Captured at scan start. Same length as wavelengths_nm."
+    },
+    "repeats": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Number of spectral sweeps in this capture. Production: 3."
+    },
+    "integration_time_us": {
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 500000,
+      "description": "Sensor integration time in microseconds. Auto-selected to avoid saturation."
+    },
+    "gain": {
+      "type": "number",
+      "description": "Sensor gain setting. Sensor-dependent."
+    },
+    "snr_db": {
+      "type": ["number","null"],
+      "description": "Estimated signal-to-noise ratio in dB. Computed from repeat variance. < 20 dB triggers a retake prompt."
+    },
+    "saturation_bands": {
+      "type": "array",
+      "items": { "type": "integer" },
+      "description": "Indices of any saturated bands (count at max ADC). Should be empty for a good scan."
+    },
+    "temperature_compensation_applied": {
+      "type": "boolean",
+      "description": "Whether temperature drift correction was applied using BME688 reading."
+    },
+    "calibration_id": {
+      "type": "string",
+      "description": "ID of the calibration file that was active when this spectrum was captured."
+    },
+    "transfer_stats": {
+      "type": "object",
+      "description": "BLE transfer quality metrics.",
+      "properties": {
+        "total_chunks":    { "type": "integer" },
+        "retransmitted":   { "type": "integer" },
+        "transfer_ms":     { "type": "integer" },
+        "throughput_kbps": { "type": "number" }
+      }
+    },
+    "preprocessing_applied": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of preprocessing steps applied before inference. e.g. ['snv', 'savitzky_golay_11_2']"
+    }
+  }
+}

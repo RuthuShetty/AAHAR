@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/bunker",
+  "title": "Bunker",
+  "description": "Silage bunker / bag registration. Mutable geometry and metadata. Drives the 3D digital twin (S4). Field-level Lamport clocks for offline merge.",
+  "version": 2,
+  "type": "object",
+  "required": ["farm_id", "name", "type", "dimensions", "crop_type", "ensiling_date", "probe_positions", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "farm_id": { "type": "string", "format": "uuid" },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "description": "Farmer-assigned name, e.g. 'North Bunker' or 'Bag #3'."
+    },
+    "type": {
+      "type": "string",
+      "enum": ["BUNKER", "PILE", "BAG", "TOWER", "PIT"],
+      "description": "Silage storage structure type. Determines 3D twin geometry."
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "True-scale dimensions for 3D twin. All in metres.",
+      "required": ["length_m", "width_m", "height_m"],
+      "properties": {
+        "length_m":  { "type": "number", "minimum": 0.5, "maximum": 500 },
+        "width_m":   { "type": "number", "minimum": 0.5, "maximum": 100 },
+        "height_m":  { "type": "number", "minimum": 0.5, "maximum": 30 },
+        "wall_angle_deg": { "type": ["number","null"], "minimum": 0, "maximum": 90, "description": "For bunker silos with sloped walls." }
+      }
+    },
+    "capacity_tonnes": { "type": ["number","null"], "minimum": 0 },
+    "fill_pct": {
+      "type": ["number","null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Estimated current fill level as % of capacity. Updated by farmer or FPO supervisor."
+    },
+    "crop_type": {
+      "type": "string",
+      "description": "FeedType enum key for the ensiled crop. e.g. 'MAIZE_SILAGE', 'SORGHUM_SILAGE'."
+    },
+    "ensiling_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the bunker was sealed / ensiling started. Used for fermentation phase calculation."
+    },
+    "opening_date": {
+      "type": ["string","null"],
+      "format": "date",
+      "description": "Date the face was first opened for feedout. Triggers aerobic spoilage risk model."
+    },
+    "face_direction": {
+      "type": ["string","null"],
+      "enum": ["NORTH","SOUTH","EAST","WEST","UNKNOWN",null],
+      "description": "Cardinal direction of the feed-out face. For feedout planning in the 3D twin."
+    },
+    "probe_positions": {
+      "type": "array",
+      "description": "Registered probe lance positions in the bunker coordinate system. Origin = NW corner, +X = East, +Y = Up, +Z = South.",
+      "items": {
+        "type": "object",
+        "required": ["probe_device_id", "x_m", "y_m", "z_m"],
+        "properties": {
+          "probe_device_id": { "type": "string", "pattern": "^AAHAR-S-[0-9]{6}$" },
+          "label":           { "type": ["string","null"], "maxLength": 40, "description": "Farmer-assigned label, e.g. 'Centre probe'." },
+          "x_m":  { "type": "number", "minimum": 0 },
+          "y_m":  { "type": "number", "minimum": 0, "description": "Depth from surface." },
+          "z_m":  { "type": "number", "minimum": 0 },
+          "depth_from_surface_m": { "type": "number", "minimum": 0, "maximum": 20, "description": "Lance insertion depth." }
+        }
+      },
+      "minItems": 0,
+      "maxItems": 20
+    },
+    "photo_ids": {
+      "type": "array",
+      "items": { "type": "string", "format": "uuid" },
+      "maxItems": 10,
+      "description": "UUIDv7s of bunker photos stored in MinIO."
+    },
+    "cover_material": {
+      "type": ["string","null"],
+      "enum": ["PLASTIC_FILM","SOIL","TYRES","MIXED",null],
+      "description": "Sealing material type. Affects O₂ ingress model."
+    },
+    "fermentation_phase": {
+      "type": ["string","null"],
+      "description": "FermentationPhase enum key. Derived from probe readings, updated by the cloud on each sync."
+    },
+    "latest_fqi": {
+      "type": ["number","null"],
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Latest Fermentation Quality Index (0–100). Derived on the cloud, synced back."
+    },
+    "feedout_recommendation": {
+      "type": ["object","null"],
+      "description": "Latest feedout recommendation from the spoilage forecast model.",
+      "properties": {
+        "computed_at":       { "type": "string", "format": "date-time" },
+        "advance_cm_per_day":{ "type": "number", "minimum": 0 },
+        "spoilage_front_m":  { "type": "number", "minimum": 0 },
+        "action_key":        { "type": "string", "description": "Advisory action key, e.g. 'open_left_face_within_5_days'" },
+        "days_until_action": { "type": ["integer","null"], "minimum": 0 }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "description": "Field-level Lamport clocks.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["device", "counter"],
+        "properties": {
+          "device":  { "type": "string" },
+          "counter": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

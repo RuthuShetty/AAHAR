@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/farm",
+  "title": "Farm",
+  "description": "Mutable farm profile. Uses field-level Lamport clocks for offline conflict resolution: two offline edits to different fields both survive; same field follows last-write-wins.",
+  "version": 2,
+  "type": "object",
+  "required": ["name", "owner_phone", "location", "fields"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Farm name or owner name as used locally."
+    },
+    "owner_phone": {
+      "type": "string",
+      "pattern": "^\\+91[6-9][0-9]{9}$",
+      "description": "Verified phone number (E.164, India only for v1). Used for OTP auth and SMS alerts."
+    },
+    "owner_name": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "location": {
+      "type": "object",
+      "description": "Farm location for regional analytics and lab directory lookup.",
+      "required": ["state", "district"],
+      "properties": {
+        "state":       { "type": "string", "description": "Indian state name in English." },
+        "district":    { "type": "string", "description": "District name in English." },
+        "village":     { "type": ["string","null"] },
+        "pincode":     { "type": ["string","null"], "pattern": "^[1-9][0-9]{5}$" },
+        "latitude":    { "type": ["number","null"], "minimum": 8.0,  "maximum": 38.0 },
+        "longitude":   { "type": ["number","null"], "minimum": 68.0, "maximum": 98.0 },
+        "geo_accuracy_m": { "type": ["number","null"], "description": "GPS accuracy in metres at time of location capture." }
+      }
+    },
+    "language_preference": {
+      "type": "string",
+      "description": "Language enum key. App switches to this language on farm profile load."
+    },
+    "fpo_id": {
+      "type": ["string","null"],
+      "format": "uuid",
+      "description": "Linked FPO/co-operative for dashboard aggregation and device sharing."
+    },
+    "device_ids": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^AAHAR-(P|L|S|G)-[0-9]{6}$" },
+      "description": "Devices registered to this farm."
+    },
+    "photo_url": {
+      "type": ["string","null"],
+      "format": "uri",
+      "description": "Optional farm photo stored in MinIO."
+    },
+    "consent": {
+      "type": "object",
+      "description": "DPDP Act 2023 consent record. Must be obtained before any data leaves the device.",
+      "required": ["given", "given_at", "version"],
+      "properties": {
+        "given":      { "type": "boolean" },
+        "given_at":   { "type": "string", "format": "date-time" },
+        "version":    { "type": "string", "description": "Consent form version string. e.g. 'v1.2'" },
+        "revoked":    { "type": "boolean", "default": false },
+        "revoked_at": { "type": ["string","null"], "format": "date-time" }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "description": "Field-level Lamport clock map. Every top-level mutable field has an entry here. Format: { 'field_name': { 'device': 'AAHAR-P-004821', 'counter': 42 } }. Used by sync engine for conflict resolution.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["device", "counter"],
+        "properties": {
+          "device":  { "type": "string" },
+          "counter": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "notes": {
+      "type": ["string","null"],
+      "maxLength": 2000,
+      "description": "Optional notes by the FPO supervisor or vet."
+    }
+  }
+}

@@ -1,0 +1,534 @@
+<USER_REQUEST>
+start creating this project AAHAR — Master Build Prompt
+Smart AI-Enabled Rapid Feed & Silage Quality Testing System for Dairy Farmers
+AAHAR = AI-Assisted Health & Analysis of Ration
+
+How to use this document. Section 1 is the prompt you paste into your AI coding agent (Claude Code, Cursor, Windsurf, Codex) or hand to a dev team. Sections 2–14 are the appendices the agent pulls from — they define the contracts, the data, the 3D language, the sync rules, and the plan. Everything is written so that no step requires a design decision that isn't already made here.
+
+1. THE MASTER PROMPT
+Paste everything inside this block.
+
+ROLE
+You are a senior full-stack + embedded + ML engineering team building a production-grade
+agritech product called AAHAR. You write complete, runnable, typed, tested code. You do not
+produce placeholders, "TODO", lorem ipsum, or mock-only screens. Every screen you build is
+wired to a real data layer. Every 3D asset you build is driven by live state, not hardcoded.
+
+MISSION
+Build AAHAR: a rapid, low-cost, offline-first system that lets a dairy farmer test cattle feed
+and silage in under 3 minutes using a portable NIR scanner + smartphone, get an instant
+plain-language advisory in their own language, and have every result synchronized to a cloud
+traceability layer that FPOs, feed mills, veterinarians and government agencies can audit.
+
+THE FOUR SURFACES (build all four, share one contract)
+1. EDGE FIRMWARE   — ESP32-S3 handheld NIR + environmental scanner (C++/ESP-IDF)
+2. IoT PROBE       — in-silo/in-bunker multi-probe node (ESP32-C6, LoRaWAN + BLE)
+3. MOBILE APP      — React Native + Expo, offline-first, on-device TFLite inference,
+                     realistic 3D via React Three Fiber, 8 Indian languages, voice-first
+4. CLOUD PLATFORM  — FastAPI + PostgreSQL/TimescaleDB + MinIO + MQTT broker,
+                     plus a React + R3F web dashboard for FPOs, mills and vets
+
+NON-NEGOTIABLE CONSTRAINTS
+- OFFLINE FIRST. The app must perform a full test, run inference, generate an advisory, and
+  render every 3D view with the network switched off. Cloud is a sync target, never a
+  dependency. Assume 2G/no-signal for 60% of sessions.
+- TIME TO RESULT <= 180 seconds from "Start Test" to advisory on screen.
+- BOM <= INR 12,000 for the handheld unit at 1,000-unit volume. Justify every component.
+- LOW LITERACY UI. Every action reachable in <= 3 taps. Every number paired with an icon,
+  a colour, and a spoken sentence. Text is never the only carrier of meaning.
+- LANGUAGES: en, hi, pa, mr, gu, te, kn, bn. Runtime switchable, bundled offline, including
+  offline TTS. Punjabi and Hindi are first-class, not afterthoughts.
+- 3D IS FUNCTIONAL, NOT DECORATIVE. Every 3D view answers a question the farmer asked.
+  Performance floor: 45 FPS on a Snapdragon 680 / 4 GB RAM device.
+- ACCESSIBILITY: WCAG 2.2 AA, 4.5:1 contrast minimum, 48dp touch targets, full screen-reader
+  labels, one-handed reachability, readable in direct sunlight (high-contrast outdoor theme).
+
+ARCHITECTURE YOU MUST FOLLOW
+  [NIR Handheld] --BLE GATT--> [Phone: SQLite + TFLite + R3F] --HTTPS/delta sync--> [Cloud]
+  [Silage Probes] --LoRaWAN--> [Gateway] --MQTT--> [Cloud] --WebSocket--> [Dashboard]
+  [Phone] --BLE mesh relay--> [Silage Probes]   (when no gateway exists on the farm)
+
+  The phone is the primary compute node. The cloud is for aggregation, model updates,
+  traceability, and multi-farm analytics only.
+
+WHAT "SYNCHRONIZED" MEANS HERE (implement exactly this, see Appendix 8)
+- One shared schema, one shared enum set, one shared units system across all four surfaces.
+  Generate TypeScript types, Python Pydantic models, and C++ structs from a single source
+  of truth (JSON Schema in /contracts). A field added there appears everywhere or the
+  build fails.
+- Every record carries: uuid_v7 id, device_id, farm_id, captured_at (device clock),
+  server_received_at, schema_version, sync_state, and a Lamport counter.
+- Conflict policy: measurements are immutable and append-only (never conflict). Mutable
+  entities (farm profile, herd, ration plan) use last-write-wins on a per-field basis with
+  a field-level clock, so two offline edits to different fields both survive.
+- The 3D scene subscribes to the same store the charts do. Changing a value updates the
+  mesh, the chart and the advisory in the same frame. No duplicate state.
+- Sync is delta-based, resumable, chunked, and idempotent. A sync interrupted at 40% resumes
+  at 40%. Re-sending the same batch twice changes nothing.
+
+DELIVERABLES (produce all of them)
+  /contracts        JSON Schema + codegen scripts (TS, Python, C++)
+  /firmware-handheld ESP-IDF project, PlatformIO-compatible, with unit tests
+  /firmware-probe    ESP-IDF project for the silage probe node
+  /mobile            React Native + Expo app
+  /cloud             FastAPI service, Alembic migrations, Docker Compose
+  /dashboard         React + Vite + R3F web app
+  /ml                Training notebooks, preprocessing pipeline, ONNX + TFLite exports
+  /assets-3d         GLB models, textures, HDRIs, plus the Blender source and bake scripts
+  /docs              Architecture Decision Records, API docs, calibration protocol, demo script
+  /infra             Terraform + GitHub Actions CI/CD
+
+BUILD ORDER — DO NOT DEVIATE
+  Phase 0  Contracts + schema + codegen + repo scaffolding + CI green
+  Phase 1  Cloud API + DB + auth + sync endpoints, fully tested with a fake device
+  Phase 2  Mobile shell: navigation, i18n, offline DB, sync engine, BLE mock transport
+  Phase 3  ML pipeline: spectral preprocessing, models, TFLite export, on-device inference
+  Phase 4  3D system: asset pipeline, scene graph, the five hero scenes, perf budget met
+  Phase 5  Firmware: sensor drivers, BLE GATT server, spectral capture, power management
+  Phase 6  Silage probe + LoRaWAN + MQTT ingestion + spoilage forecasting
+  Phase 7  Dashboard, QR traceability, advisory engine hardening
+  Phase 8  Field calibration, multilingual QA, performance tuning, demo polish
+
+After EACH phase: run the full test suite, update /docs, and print a status table showing
+what is done, what is stubbed, and what is next. Never advance with a red build.
+
+STYLE RULES
+- TypeScript strict. Python typed + ruff + mypy. C++17 with static analysis.
+- No magic numbers. Every threshold lives in /contracts/thresholds.json with a cited source.
+- Every ML output ships with a confidence interval and a "why" explanation. Never show a
+  bare number to a farmer without a band and a plain-language interpretation.
+- Never invent lab accuracy claims. State model RMSE from validation, honestly.
+
+START NOW with Phase 0. Print the repo tree, then write /contracts in full, then the codegen.
+2. THE PRODUCT IN ONE PAGE
+Aspect	Definition
+Primary user	Small/marginal dairy farmer, 2–20 animals, low text literacy, shared smartphone
+Secondary users	FPO/co-op supervisor, feed mill QC, veterinarian, government extension officer
+Core promise	"Scan your feed. Know in 2 minutes if it's good, if it's cheated, and what to feed today."
+Test duration	90 s scan + 20 s inference + advisory render = < 3 min
+Handheld BOM target	₹ 10,500–12,000 @ 1k volume
+Probe BOM target	₹ 3,200 per silage node
+Business model	Device sold/leased to FPO → shared across 40–60 farmers; app free; cloud tiers for mills
+Differentiator	Adulteration + mycotoxin screening on the same handheld pass as nutrition, plus a 3D silage digital twin that predicts spoilage 7 days ahead
+The three jobs-to-be-done
+"Is this feed worth the price?" → nutrition panel + adulteration verdict + ₹/kg-of-protein comparison against the market rate.
+"Will this hurt my animals?" → mycotoxin/fungal risk band + immediate action ("do not feed to pregnant animals", "dilute 1:4 with green fodder").
+"How do I feed better tomorrow?" → ration balancing against the animal's stage, using what the farmer actually has in store.
+3. USER JOURNEYS (build to these, screen for screen)
+Journey A — Feed Test (the hero flow)
+1. Farmer opens app → large "TEST FEED" button, spoken prompt in their language
+2. Selects feed type from a 3D carousel of photoreal feed models
+   (maize silage, wheat straw, cottonseed cake, mustard cake, TMR, green fodder,
+    concentrate mix, berseem, napier)
+3. App pairs with handheld over BLE (auto-reconnect to last device, 2 s)
+4. On-screen 3D animation shows exactly how to fill the sample chamber — the real
+   device model rotates and demonstrates. Farmer copies it.
+5. Presses scan on device OR in app. LED ring pulses. Progress ring on phone mirrors it.
+6. 90 s: device sweeps 900–1700 nm, captures 228 bands x 3 repeats, plus temp/humidity,
+   plus a 4-angle macro photo burst for the vision model.
+7. Spectra stream to phone over BLE in 512-byte chunks with CRC. Phone runs:
+      - SNV + Savitzky-Golay preprocessing
+      - PLS/CNN hybrid for CP, moisture, ADF, NDF, ash, ME
+      - Classifier head for urea / silica / melamine adulteration
+      - MobileNetV3 on the macro images for mould + foreign matter
+8. Results render progressively — moisture first (fastest), then the full panel.
+9. 3D NUTRIENT VIEW: a volumetric composition model the farmer can rotate; deficient
+   fractions glow amber, adulterants pulse red with a callout.
+10. Advisory card + voice playback. Three actions: SAVE / COMPARE / SHARE VIA WHATSAPP.
+11. Record queues for sync. A small cloud icon shows "saved on phone, will upload".
+Journey B — Silage Bunker Monitoring
+1. Farmer registers a bunker: photo, dimensions, crop, ensiling date, 3–6 probe positions
+2. App builds a 3D digital twin of that bunker at the real dimensions
+3. Probes report pH, temperature, moisture, CO2, VOC every 30 min over LoRa/BLE
+4. Twin renders a volumetric heat field — cool blue = well fermented, red = aerobic spoilage
+5. Farmer can slice the bunker with a drag gesture to see the interior cross-section
+6. Forecast model predicts spoilage front propagation 7 days out, shown as an animated
+   advancing surface with a countdown: "Feed out from the left face within 5 days"
+7. Push/SMS alert on threshold breach, works even on a feature phone via SMS fallback
+Journey C — QR Traceability
+Feed mill scans a batch → uploads the batch's lab + NIR profile → gets a QR
+Farmer scans that QR at purchase → sees the declared profile
+Farmer tests the actual bag → app diffs declared vs measured
+Mismatch > tolerance → flagged, logged, reported to FPO dashboard, dispute record created
+4. MEASUREMENT SPECIFICATION
+Table 4.1 — Feed quality parameters
+#	Parameter	Sensing method	Working range	Target accuracy (RMSEP)	Model	Inference time
+1	Moisture / DM	NIR 1400–1450 nm + capacitive	5–85 %	± 1.2 %	PLS-R (12 LV)	40 ms
+2	Crude protein	NIR 2050–2180 nm proxy + 1500–1700 nm	2–48 % DM	± 1.5 %	1D-CNN + PLS ensemble	120 ms
+3	ADF	NIR full sweep	8–55 % DM	± 2.1 %	PLS-R	40 ms
+4	NDF	NIR full sweep	15–80 % DM	± 2.6 %	PLS-R	40 ms
+5	Crude fat (EE)	NIR 1720–1760 nm	0.5–20 %	± 0.8 %	PLS-R	40 ms
+6	Ash / total minerals	NIR + LED reflectance	2–25 %	± 1.1 %	PLS-R	40 ms
+7	ME (energy)	Derived from CP/ADF/EE/ash	4–14 MJ/kg DM	± 0.6 MJ	Regression on predicted proximates	5 ms
+8	Ca, P proxy	XRF-free: NIR + colorimetric strip read by camera	Deficit / adequate / excess	3-class, F1 ≥ 0.85	CNN on strip image	90 ms
+9	Urea adulteration	NIR 1980–2050 nm N-H signature + urease strip colour	0–8 % w/w	Detect ≥ 0.5 %, F1 ≥ 0.93	Binary CNN + strip vision	110 ms
+10	Sand / silica	Ash-proxy + density cell + vision texture	0–15 % w/w	Detect ≥ 2 %, F1 ≥ 0.90	Gradient boosting on fused features	30 ms
+11	Melamine / NPN	NIR anomaly score vs. clean-feed manifold	Anomaly flag	AUC ≥ 0.88	Autoencoder reconstruction error	60 ms
+12	Aflatoxin B1 risk	Fluorescence @ 365 nm UV LED + vision + NIR	Low / Med / High (<20, 20–50, >50 ppb)	Sens ≥ 0.85 @ 20 ppb	Multimodal classifier	150 ms
+13	Total mycotoxin risk	Same stack + storage-history features	3-class	Sens ≥ 0.80	Fusion model	150 ms
+14	Fungal / mould	Macro imaging 4× + VOC sensor	% surface + species-group	mIoU ≥ 0.72	MobileNetV3-seg	180 ms
+15	Foreign matter	Macro imaging	Presence + type	F1 ≥ 0.88	YOLO-nano	120 ms
+Honesty rule: aflatoxin quantification by NIR/fluorescence alone is screening, not quantification. The UI must say "Screening result — send to lab if HIGH" and offer a one-tap lab-referral with the nearest accredited lab from an offline-bundled directory. Never print a ppb number as if it were lab-grade.
+
+Table 4.2 — Silage monitoring parameters
+#	Parameter	Sensor	Range	Accuracy	Sampling	Why it matters
+1	pH	ISFET pH probe, food-grade	3.0–7.5	± 0.1	30 min	< 4.2 = well preserved; > 5.0 = clostridial risk
+2	Core temperature	DS18B20 array, 4 depths	−10 to 80 °C	± 0.3 °C	5 min	Rise > 5 °C above ambient = aerobic spoilage started
+3	Moisture / DM	Capacitive + resistive fusion	20–85 %	± 2 %	30 min	60–70 % is the fermentation sweet spot
+4	CO₂	NDIR (MH-Z19C)	0–10 000 ppm	± 50 ppm	15 min	High CO₂ = active anaerobic fermentation (good early)
+5	O₂ ingress	Electrochemical	0–25 %	± 0.2 %	15 min	> 2 % = seal breach
+6	VOC / ethanol / NH₃	MOS array (BME688)	Indexed	Relative	15 min	NH₃ spike = protein breakdown
+7	Fermentation quality index	Derived	0–100	—	Per reading	Composite of pH trajectory, temp, CO₂, VOC
+8	Mould growth probability	Derived + vision	0–1	AUC ≥ 0.86	Hourly	Drives the 7-day spoilage forecast
+9	Spoilage front position	Derived	Metres from face	± 0.3 m	Hourly	Renders as the advancing surface in the 3D twin
+Table 4.3 — Derived advisory outputs
+Output	Inputs	Form shown to farmer
+Feed grade	All nutrition + safety	A / B / C / REJECT, with a colour and a spoken sentence
+Value-for-money	CP, ME, local price feed	"₹ 412 per kg protein — market avg ₹ 340. Overpriced."
+Ration correction	Result + herd profile + stock on hand	"Add 400 g mustard cake per animal per day"
+Safety action	Toxin + mould bands	"Do not feed to pregnant or young animals"
+Storage action	Moisture + ambient + VOC	"Dry to under 14% within 3 days or it will mould"
+Silage feed-out plan	Twin forecast	"Open the left face. Use 18 cm per day."
+5. HARDWARE SPECIFICATION
+Table 5.1 — Handheld unit BOM
+Component	Part	Purpose	Qty	₹ @1k
+MCU	ESP32-S3-WROOM-1 N16R8	Compute, BLE 5, Wi-Fi	1	480
+NIR spectral sensor	Hamamatsu C12880MA or AS7265x triad (cost variant)	340–850 / 900–1700 nm	1	5,800 / 1,400
+NIR light source	2× tungsten-halogen micro-lamp + 6× 1450/1650 nm LED	Illumination	1 set	620
+UV LED	365 nm 3 W + longpass filter	Aflatoxin fluorescence	1	240
+Camera	OV5640 5 MP + macro lens + diffuser ring	Mould, foreign matter, strip reading	1	690
+Environmental	BME688 (T/RH/P/VOC)	Compensation + storage sensing	1	410
+Reference	Spectralon-equivalent white tile + dark shutter	Calibration every scan	1	300
+Sample chamber	Machined ABS + quartz window, 30 ml, twist-lock	Repeatable optical path	1	450
+Battery	18650 ×2, 6800 mAh + BQ24074 PMIC	60+ scans per charge	1	720
+Display	1.3" OLED + LED status ring	Standalone operation	1	260
+Enclosure	IP54 ABS + TPU bumper, field-serviceable	Dust/splash	1	540
+Misc	PCB, connectors, USB-C, buzzer, magnets	—	—	390
+Total	₹ 11,300 (Hamamatsu) / ₹ 6,900 (AS7265x)
+Ship two SKUs: AAHAR Pro (Hamamatsu, FPO-owned, full mycotoxin screening) and AAHAR Lite (AS7265x, nutrition + urea + mould only, farmer-affordable). The app detects the SKU over BLE and gracefully hides unsupported parameters — never shows a greyed-out feature the hardware can't do.
+
+Table 5.2 — Silage probe node BOM
+Component	Part	₹ @1k
+MCU + radio	ESP32-C6 + SX1262 LoRa	620
+pH	ISFET probe + AD8603 front end	1,150
+Temperature	4× DS18B20 on a 1.2 m stainless lance	280
+Moisture	Custom capacitive lance electrode	190
+Gas	MH-Z19C NDIR CO₂ + BME688	640
+Power	3.7 V 5000 mAh + 2 W solar + TP4056	380
+Housing	IP67 lance + head, stainless tip	340
+Total	₹ 3,600
+Power budget: deep sleep 18 µA, wake 5 s every 15 min, LoRa TX 120 mA for 80 ms → ≈ 14 months on battery alone, indefinite with solar.
+
+6. 3D UI SPECIFICATION — "REALISTIC, SYNCHRONIZED"
+This is the section most projects get wrong. Read it fully before writing any 3D code.
+
+6.1 The rule
+No 3D object exists unless it answers a question. Every mesh is bound to a value in the app store. If you delete the data, the mesh must disappear or grey out. Decorative 3D is rejected in code review.
+
+6.2 Technology
+Layer	Choice	Note
+Renderer	three.js r16x via @react-three/fiber	Same code on mobile (expo-gl) and web
+Helpers	@react-three/drei	Environment, Bounds, useGLTF, Html, ContactShadows
+Physics	@react-three/rapier (only in the feed-fill tutorial)	WASM, lazy-loaded
+Post	@react-three/postprocessing — SSAO + bloom on desktop only	Disabled on mobile
+Assets	GLB, Draco + KTX2/Basis textures	Every model < 1.5 MB
+Authoring	Blender 4.x → glTF, with /assets-3d/bake.py for AO/lightmap bakes	Source committed
+AR	expo-three-ar / WebXR on dashboard	Progressive enhancement, never required
+6.3 Visual language (photoreal but readable)
+Element	Spec
+Lighting	1 HDRI environment (studio_small_08, 1k, compressed) + 1 key directional + contact shadows. No more than 3 real-time lights on mobile.
+Materials	Full PBR: baseColor, normal, roughness, metalness, AO. Feed materials use real photogrammetry-derived albedo.
+Camera	35 mm equivalent, PerspectiveCamera fov={38}, damped orbit, clamped polar angle so the model never flips upside down
+Colour semantics	Green #2E7D32 good · Amber #F9A825 caution · Red #C62828 danger · Blue #1565C0 data · never colour alone (always icon + text + voice)
+Motion	Every transition 240–320 ms, easeOutCubic. Respect prefers-reduced-motion — degrade to cross-fades.
+Scale honesty	Bunker twins render at true metric scale with a 1 m reference grid. A farmer must be able to trust the proportions.
+6.4 The five hero 3D scenes
+#	Scene	What it shows	Bound state	Interactions
+S1	Device Twin	Photoreal handheld model with live status: battery fill, LED ring colour, chamber open/closed, BLE link	device.*	Orbit, tap-to-explode into 6 labelled parts, "how to fill" guided animation
+S2	Sample Chamber Sim	Cutaway of the chamber with animated NIR beam entering the feed bed, photons scattering, returning to the sensor	scan.progress, scan.spectrum	Live: the return-beam intensity actually animates from the streaming spectrum
+S3	Nutrient Volume	The tested sample as a rotatable volumetric block, internally partitioned by composition (protein / fibre / fat / ash / moisture), each fraction a distinct material	result.proximates	Rotate; tap a fraction to isolate it; adulterant inclusions render as red foreign particles at real detected concentration
+S4	Silage Bunker Twin	True-scale bunker/bag with probe lances, a volumetric temperature+pH field, and the animated spoilage front	bunker.*, probes[], forecast[]	Drag to slice cross-section; scrub a timeline to replay 30 days or scrub forward 7 days of forecast
+S5	Herd Impact Model	Anatomically correct dairy cow; highlights rumen when fibre is off, udder when energy is short, liver when aflatoxin is high, skeleton when Ca/P is off	advisory.impacts[]	Tap a highlighted region → plain-language explanation + the exact fix
+6.5 Performance budget (enforce with a CI perf test)
+Metric	Mobile floor	Desktop target
+Frame rate	≥ 45 FPS sustained	≥ 60 FPS
+Draw calls per scene	≤ 60	≤ 150
+Triangles per scene	≤ 180 k	≤ 800 k
+Texture memory	≤ 48 MB	≤ 200 MB
+GLB payload per scene	≤ 4 MB total	≤ 12 MB
+Cold scene mount	≤ 900 ms	≤ 400 ms
+Battery drain	≤ 6 %/10 min of 3D	—
+Techniques required: 3 LOD levels per model, InstancedMesh for all repeated geometry (feed particles, probe markers), frustum culling, <Suspense> + progressive GLB loading, texture atlasing, a "Lite mode" toggle that swaps S3/S4 for 2D equivalents on devices below a measured GPU threshold — auto-detected on first launch, never a setting the farmer has to understand.
+
+6.6 Binding pattern (write it exactly this way)
+// ONE store. The chart, the advisory text, the voice line and the mesh all read from it.
+const proximates = useResultStore(s => s.active?.proximates)
+
+// Mesh reacts to data. Data never lives in the mesh.
+<NutrientVolume
+  fractions={proximates}                 // drives partition heights
+  adulterants={result.adulterants}       // drives red inclusion instancing
+  confidence={result.confidence}         // drives material roughness/opacity haze
+  onFractionTap={id => speak(explain(id))}
+/>
+If a 3D component holds a useState that duplicates domain data, it is a bug. 3D components take props and emit events. Nothing else.
+
+7. SCREEN INVENTORY
+#	Screen	Purpose	3D	Offline
+1	Language & voice onboarding	Pick language, hear a sample, grant mic	—	✅
+2	Farm & herd setup	Animals, breed, lactation stage, yield	Cow model picker (S5 lite)	✅
+3	Home	Big TEST button, last result, bunker alerts, sync chip	S1 thumbnail	✅
+4	Device pairing	BLE scan, pair, firmware version, calibrate	S1	✅
+5	Feed type picker	3D carousel of feed types	Feed GLB carousel	✅
+6	Sample prep tutorial	How to fill the chamber correctly	S1 animated	✅
+7	Scanning	Live progress + beam sim + spectrum trace	S2	✅
+8	Results — nutrition	Panel, bands, confidence, grade	S3	✅
+9	Results — safety	Adulteration, toxin, mould, actions	S3 with inclusions	✅
+10	Advisory	Plain-language + voice + ration fix	S5	✅
+11	Compare	Two results side by side, ₹/kg-protein	Split S3	✅
+12	Bunker list	All registered silage stores + health	Twin thumbnails	✅
+13	Bunker twin	Full digital twin + forecast + slice	S4	✅ (cached)
+14	Probe setup	Register, position, calibrate probes	S4 placement mode	✅
+15	QR scan / verify	Declared vs measured diff	—	✅
+16	History	Timeline, filter, trends	—	✅
+17	Sync centre	Queue, conflicts, manual push, data usage	—	✅
+18	Lab referral	Nearest NABL lab, prefilled form	—	✅ (bundled dir)
+19	Learn	Short voice+3D lessons on feed quality	Reuses S3/S5	✅
+20	Settings	Language, units, lite mode, accessibility	—	✅
+Dashboard (web): Fleet map · Farm drill-down · Batch traceability graph · Model performance · Adulteration heatmap by supplier · Bunker twin (full S4) · Alert console · Export (CSV/PDF).
+
+8. SYNCHRONIZATION SPECIFICATION
+8.1 The contract layer
+/contracts
+  schema/
+    measurement.schema.json      # immutable, append-only
+    spectrum.schema.json
+    farm.schema.json             # mutable, field-level clocks
+    herd.schema.json
+    bunker.schema.json
+    probe_reading.schema.json    # immutable time series
+    advisory.schema.json
+    batch.schema.json            # QR traceability
+  enums/  units.json  thresholds.json
+  codegen/
+    gen_ts.mjs → mobile/src/types + dashboard/src/types
+    gen_py.py  → cloud/app/schemas
+    gen_cpp.py → firmware-*/include/contracts
+CI fails if generated files drift from the schema. This is what makes the system "synchronized" in the real sense: one definition, four surfaces, zero drift.
+
+8.2 Record envelope (every syncable record)
+{
+  "id": "uuid-v7",              // time-ordered, generated offline, collision-free
+  "entity": "measurement",
+  "schema_version": 3,
+  "farm_id": "uuid",
+  "device_id": "AAHAR-P-004821",
+  "captured_at": "2026-09-18T07:12:04+05:30",  // device clock
+  "clock": { "device": "AAHAR-P-004821", "counter": 88421 },  // Lamport
+  "server_received_at": null,
+  "sync_state": "pending | in_flight | synced | conflict | rejected",
+  "payload_hash": "sha256:…",
+  "payload": { }
+}
+8.3 Table — sync behaviour matrix
+Entity	Mutability	Conflict rule	Transport	Priority	Max offline age
+Measurement	Immutable	None possible	HTTPS batch	High	Unlimited
+Raw spectrum	Immutable	None	HTTPS chunked, Wi-Fi only by default	Low	30 days then prune
+Macro images	Immutable	None	Wi-Fi only, downscaled 1024 px	Low	30 days
+Probe reading	Immutable	None	MQTT (gateway) / BLE relay (phone)	Medium	90 days on node
+Farm profile	Mutable	Field-level LWW	HTTPS	High	Unlimited
+Herd	Mutable	Field-level LWW	HTTPS	High	Unlimited
+Bunker geometry	Mutable	Field-level LWW	HTTPS	Medium	Unlimited
+Advisory	Derived	Recomputed server-side, client version kept as local_advisory	HTTPS	Medium	Unlimited
+ML model bundle	Server→client	Server wins, versioned, signed	HTTPS, Wi-Fi only	Low	—
+Thresholds	Server→client	Server wins	HTTPS	High	—
+Firmware OTA	Server→device via phone	Server wins, signed, A/B slots	BLE chunked	Low	—
+8.4 Sync engine algorithm
+on (connectivity OR manual OR every 15 min OR app foreground):
+  1. handshake → server returns {server_time, schema_version, model_version, cursor}
+  2. if client schema_version < server → block writes, prompt "update app", allow reads
+  3. PUSH:  take up to 50 pending records ordered by (priority, captured_at)
+           POST /sync/push  with Idempotency-Key = sha256(batch ids)
+           server returns per-record {accepted | duplicate | conflict | rejected+reason}
+  4. PULL:  GET /sync/pull?cursor=…&limit=200  → apply, advance cursor atomically
+  5. RESOLVE: field-level merge for mutable entities; surface true conflicts in Screen 17
+  6. MEDIA: separate queue, Wi-Fi/charging only unless user forces, resumable ranges
+  7. record sync_run row: started, ended, bytes_up, bytes_down, errors
+Backoff: 2s → 4s → 8s → … → 15 min, with jitter. Never drain battery retrying.
+Data guard: hard cap of 20 MB/month on cellular by default, configurable, shown to user.
+8.5 BLE transfer protocol (phone ↔ handheld)
+Characteristic	UUID suffix	Dir	Payload
+Device info	…0001	R	SKU, FW, serial, calibration date
+Status	…0002	N	battery, temp, chamber state, error code
+Command	…0003	W	START_SCAN, ABORT, CALIBRATE, SLEEP, OTA_BEGIN
+Spectrum stream	…0004	N	seq(2) + crc16(2) + 508 B data, 228 bands × 3 reps
+Image stream	…0005	N	chunked JPEG, 4 frames
+Env data	…0006	N	T/RH/P/VOC/gas
+OTA	…0007	W	signed firmware chunks, A/B slot
+MTU negotiated to 517. Throughput target ≥ 40 kB/s. Full scan payload ≈ 380 kB → < 10 s transfer. Every stream is CRC-checked with selective retransmit of failed sequence numbers.
+
+9. AI / ML SPECIFICATION
+Table 9.1 — Model registry
+Model	Task	Architecture	Input	Size (TFLite int8)	Latency	Metric target
+nir-proximate-v1	CP/DM/ADF/NDF/EE/Ash	PLS-R ensemble + 1D-CNN (5 conv, SE blocks)	228-band SNV+SG spectrum	1.8 MB	120 ms	RMSEP per Table 4.1
+nir-adulterant-v1	Urea/silica/melamine	1D-CNN multi-label + GBM on engineered peaks	Spectrum + density + ash	0.9 MB	110 ms	F1 ≥ 0.90
+nir-anomaly-v1	Unknown adulterant	Conv autoencoder, reconstruction error vs clean manifold	Spectrum	0.6 MB	60 ms	AUC ≥ 0.88
+vis-mould-v1	Mould segmentation	MobileNetV3-Small + LR-ASPP head	4× 512² macro images	2.1 MB	180 ms	mIoU ≥ 0.72
+vis-strip-v1	Colorimetric strip read	Small CNN + colour-constancy normalisation	Cropped strip ROI	0.4 MB	90 ms	MAE ≤ 5 % of scale
+fusion-toxin-v1	Aflatoxin risk band	Gradient boosting over NIR + fluorescence + vision + storage history	64-dim feature vector	0.3 MB	150 ms	Sens ≥ 0.85
+silage-forecast-v1	7-day spoilage	Temporal CNN / GRU on multivariate probe series	30-day window × 7 channels	1.2 MB	70 ms	MAE ≤ 0.4 day on front arrival
+advisory-rag-v1	Plain-language advisory	Rule engine + templated NLG, 8 languages	Result + herd + context	Rules, no NN	15 ms	100 % deterministic
+9.2 Data strategy (be honest about this — it's the hardest part)
+1. SEED (n≈400): partner with a state veterinary university / KVK. Send paired samples
+   to a NABL lab for wet chemistry (AOAC) while scanning with the device. This is ground truth.
+2. AUGMENT: spectral augmentation — additive noise, baseline drift, multiplicative scatter,
+   wavelength shift ±2 nm, temperature-effect simulation. 20× expansion.
+3. SPIKE: deliberately adulterate known-clean samples at 0.5/1/2/4/8 % urea, 2/5/10 % sand,
+   to build a labelled adulteration set. Cheap, controlled, high-value.
+4. TRANSFER: pretrain on public NIR corpora, fine-tune on the local set.
+5. FIELD LOOP: every scan uploads spectrum + (optional) later lab result → active learning
+   queue → monthly retrain → signed model bundle pushed to devices over Wi-Fi.
+6. CALIBRATION TRANSFER: piecewise direct standardisation (PDS) so a model trained on
+   device #1 works on device #500. Each unit ships with a white/dark reference routine
+   run before every scan, and a monthly full recalibration prompt.
+9.3 Honesty & safety rules in the ML layer
+Every prediction returns {value, ci_low, ci_high, confidence, in_distribution: bool}.
+If in_distribution == false (Mahalanobis distance beyond threshold), the UI says "This sample looks unlike anything I've been trained on — please send it to a lab" and refuses to print a grade.
+No model output is ever used to make a claim about animal safety without the accompanying screening disclaimer and lab-referral path.
+Model cards in /docs/model-cards/ state training set size, geography, crop coverage, and known failure modes.
+10. CLOUD & API
+Table 10.1 — Core endpoints
+Method	Path	Purpose
+POST	/auth/otp/request · /auth/otp/verify	Phone-number auth, no password
+GET	/sync/handshake	Time, schema, model, cursor
+POST	/sync/push	Idempotent batch upsert
+GET	/sync/pull	Cursor-paged deltas
+POST	/media/upload/init · PUT /media/upload/{id}/part	Resumable spectra/images
+GET	/models/manifest · /models/{id}/download	Signed model bundles
+GET	/firmware/manifest · /firmware/{id}	Signed OTA
+POST	/advisory/recompute	Server-side authoritative advisory
+POST	/batches · GET /batches/{qr}	QR traceability
+GET	/farms/{id}/analytics	Trends, ₹/kg protein, supplier scoring
+WS	/ws/alerts	Live probe alerts to dashboard
+MQTT	aahar/{farm}/{probe}/reading	Probe ingestion
+10.2 Data stores
+PostgreSQL 16 — entities, users, farms, batches, RLS per farm/org
+TimescaleDB hypertables — probe_readings, measurements (continuous aggregates for 1h/1d rollups)
+MinIO / S3 — spectra (Parquet), images, model + firmware bundles
+Redis — sync cursors, rate limits, alert dedupe
+EMQX — MQTT broker with per-device certs
+10.3 Security
+mTLS for probes · JWT (15 min) + refresh for app · Ed25519-signed model and firmware bundles verified on-device · AES-256 at rest, TLS 1.3 in transit · SQLCipher on the phone DB · per-farm row-level security · audit log on every read of another farm's data · DPDP Act 2023-aligned consent screen and export/delete endpoints.
+
+11. PROJECT PLAN
+Table 11.1 — Phase plan (12 weeks, 5-person team)
+Phase	Weeks	Owner	Deliverable	Exit criterion
+P0 Foundations	1	Lead	Contracts, codegen, repo, CI/CD, ADRs	CI green, types generated on all 4 surfaces
+P1 Cloud core	1–2	Backend	API, DB, auth, sync endpoints	Fake device syncs 10k records, 100% test pass
+P2 Mobile shell	2–3	Mobile	Nav, i18n×8, SQLite, sync engine, BLE mock	Full offline round-trip demo, airplane mode
+P3 ML pipeline	3–5	ML	Preprocessing, 8 models, TFLite export, on-device inference	All latency + metric targets in Table 9.1 met on a mid-range phone
+P4 3D system	4–6	Frontend	Asset pipeline, S1–S5 scenes, lite mode	45 FPS on Snapdragon 680, all perf budgets met
+P5 Firmware	5–7	Embedded	Drivers, BLE GATT, capture, power, OTA	60 scans/charge, <10 s transfer, CRC-clean
+P6 Silage stack	7–9	Embedded + Backend	Probe node, LoRa, MQTT, forecast model	7-day forecast MAE ≤ 0.4 day on held-out bunkers
+P7 Dashboard + trace	9–10	Frontend	Web dashboard, QR, advisory hardening	End-to-end mill→farmer→dispute flow works
+P8 Field + polish	10–12	All	Calibration at 3 farms, multilingual QA, perf, demo	50 real scans logged, lab-correlation report published
+Table 11.2 — Team & RACI
+Role	Count	Owns	Consulted on
+Tech lead / architect	1	Contracts, sync, ADRs, review	Everything
+Embedded engineer	1	Both firmwares, optics, BOM, power	ML calibration
+ML engineer	1	Data, models, calibration transfer, model cards	Firmware capture format
+Mobile + 3D engineer	1	App, R3F scenes, offline DB, i18n	Advisory UX
+Backend + DevOps	1	API, DB, MQTT, infra, dashboard	Sync protocol
+Domain advisor (part-time)	1	Nutrition rules, thresholds, vet validation	Advisory content
+Table 11.3 — Milestones & demo gates
+Gate	Week	Demo
+G1	3	Phone in airplane mode completes a full mock test and shows a result
+G2	5	Real spectra from a breadboard rig produce a real CP prediction
+G3	7	Enclosed handheld → BLE → phone → 3D nutrient view, end to end
+G4	9	Live bunker twin with 3 real probes and a working forecast
+G5	11	Two farmers, two languages, no supervision, complete a test each
+G6	12	Full pitch: device + app + dashboard + lab-correlation data
+Table 11.4 — Risk register
+#	Risk	P	I	Mitigation
+1	NIR accuracy insufficient for CP on diverse Indian feeds	H	H	Ship Lite SKU with narrower claims; publish honest RMSEP; hybrid strip tests for the hard parameters; lab-referral path always visible
+2	Aflatoxin screening produces false negatives	M	Critical	Tune for sensitivity over specificity; never claim quantification; mandatory lab referral on any HIGH or uncertain band; legal review of all claims
+3	Hamamatsu sensor cost/lead time	H	M	AS7265x fallback designed in from day one, same firmware abstraction layer
+4	3D kills performance on low-end phones	M	M	Lite mode auto-detect; perf test in CI; every 3D scene has a 2D equivalent
+5	Calibration drift across units	H	H	White/dark reference every scan; PDS transfer; monthly recalibration nudge; per-unit calibration file synced to cloud
+6	No ground-truth lab partner	M	H	Secure MoU with a KVK/vet university in week 1 — this is the critical path
+7	Farmers don't trust a screen	M	H	Voice-first, 3D showing the actual device they hold, FPO supervisor as trusted intermediary, side-by-side lab comparison during pilot
+8	Sync data costs	L	M	20 MB/month cap, Wi-Fi-only media, aggressive delta encoding
+9	Probe theft / damage in field	M	L	Low-cost SKU, geofence alert, FPO ownership model
+10	Multilingual content quality	M	M	Native-speaker review of all 8 locales; no machine translation in shipped strings
+Table 11.5 — Success metrics
+KPI	Target at demo	Target at pilot (6 mo)
+Time to result	≤ 180 s	≤ 120 s
+CP prediction RMSEP vs NABL lab	≤ 2.0 %	≤ 1.5 %
+Urea detection F1 @ ≥1 %	≥ 0.90	≥ 0.95
+Offline completion rate	100 %	100 %
+Sync success within 24 h of connectivity	≥ 95 %	≥ 99 %
+Farmer task completion, unassisted	≥ 80 %	≥ 90 %
+Cost per test	≤ ₹ 8	≤ ₹ 4
+3D scene FPS, low-end device	≥ 45	≥ 50
+Advisory acted upon (self-reported)	—	≥ 60 %
+12. REPOSITORY STRUCTURE
+aahar/
+├── contracts/            schema/ enums/ codegen/ thresholds.json
+├── firmware-handheld/    src/ drivers/ ble/ optics/ include/contracts/ test/
+├── firmware-probe/       src/ lora/ sensors/ power/ test/
+├── mobile/
+│   ├── src/
+│   │   ├── app/          expo-router screens (20 from Section 7)
+│   │   ├── three/        scenes/{DeviceTwin,ChamberSim,NutrientVolume,BunkerTwin,HerdImpact}
+│   │   │                 materials/ hooks/ lod/ perf/
+│   │   ├── ble/          transport, GATT client, mock transport for dev
+│   │   ├── db/           SQLite schema, migrations, repositories
+│   │   ├── sync/         engine, queue, conflict resolver, media queue
+│   │   ├── ml/           tflite runtime, preprocessing, postprocessing
+│   │   ├── advisory/     rule engine, NLG templates × 8 locales
+│   │   ├── i18n/         en hi pa mr gu te kn bn + tts assets
+│   │   └── store/        zustand slices — the single source of UI truth
+│   └── assets/3d/        *.glb (draco+ktx2)
+├── cloud/                app/{api,models,schemas,sync,mqtt,advisory} alembic/ tests/
+├── dashboard/            src/{pages,three,components} vite.config.ts
+├── ml/                   data/ notebooks/ pipelines/ models/ export/ model-cards/
+├── assets-3d/            blender/ textures/ hdri/ bake.py optimize.sh
+├── infra/                terraform/ docker-compose.yml .github/workflows/
+└── docs/                 adr/ api/ calibration-protocol.md demo-script.md
+13. DEFINITION OF DONE
+A feature ships only when all of these are true:
+
+ Types generated from /contracts; no hand-written duplicates anywhere
+ Works fully in airplane mode
+ Unit + integration tests written and green; sync paths have chaos tests (drop, duplicate, reorder, partial)
+ All 8 locales have real strings reviewed by a native speaker, plus offline TTS
+ Any 3D added meets the Table 6.5 budget, verified by the CI perf test
+ Every displayed number has a confidence band and a plain-language interpretation
+ Screen-reader labels + 48dp targets + 4.5:1 contrast verified
+ ADR written for any non-obvious decision
+ Demo script section updated
+14. DEMO SCRIPT (8 minutes)
+Time	Beat	What the audience sees
+0:00	Problem	One slide: a farmer paying ₹ 2,400/quintal for cake that's 6 % urea. The annual loss.
+0:45	Device reveal	Physical handheld held up; app shows S1 Device Twin rotating in sync, battery and LED state live
+1:30	The test	Fill chamber on camera, press scan, phone in airplane mode. S2 beam sim runs live.
+3:00	Result	S3 Nutrient Volume rotates. Amber protein fraction. Then red urea inclusions appear.
+3:45	The catch	"This bag is adulterated." Voice plays in Punjabi. Value-for-money line: overpaying ₹ 71/kg protein.
+4:30	Herd impact	S5 cow lights up the liver. Tap → "Do not feed to pregnant animals. Send to lab." Lab referral, one tap.
+5:15	Silage twin	S4 bunker, slice gesture, 7-day forecast advances the red spoilage front. "Open the left face in 5 days."
+6:15	Sync moment	Turn Wi-Fi on. Records flow. Cut to the dashboard: the record appears, supplier heatmap updates.
+7:00	Traceability	Scan the mill's QR. Declared 28 % CP vs measured 21 %. Dispute record created.
+7:40	Honesty + ask	Show the lab-correlation chart with real RMSEP. State what it can't do. State the pilot ask.
+Closing note for whoever builds this
+The three things that decide whether this project is impressive or forgettable:
+
+The offline demo. Turning on airplane mode in front of judges and having everything still work is worth more than any feature.
+The 3D being real. A rotating cow is decoration. A cow whose liver lights up because the aflatoxin classifier fired is engineering.
+Being honest about accuracy. Publishing an RMSEP of ±1.8 % with a lab-comparison chart beats claiming "lab-grade accuracy" with nothing behind it. Judges and farmers both know the difference.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-18T15:31:28+05:30.
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Claude Sonnet 4.6 (Thinking). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

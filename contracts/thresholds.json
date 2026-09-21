@@ -1,0 +1,105 @@
+{
+  "_comment": "AAHAR model inference thresholds. Edit here; never hardcode in source.",
+  "_version": "1.0.0",
+  "_last_updated": "2026-09-18",
+
+  "thresholds": {
+    "adulteration": {
+      "urea_prob_threshold": 0.40,
+      "silica_prob_threshold": 0.45,
+      "melamine_prob_threshold": 0.40,
+      "anomaly_recon_error_threshold": 0.035,
+      "_notes": "Urea detectable ≥0.5% DM; Silica ≥2% DM; Melamine ≥0.5% DM"
+    },
+    "proximate_ranges": {
+      "crude_protein_pct_dm": { "warn_low": 6.0,  "warn_high": 55.0,  "flag_low": 2.0,  "flag_high": 70.0 },
+      "moisture_pct":          { "warn_low": 6.0,  "warn_high": 85.0,  "flag_low": 3.0,  "flag_high": 90.0 },
+      "adf_pct_dm":            { "warn_low": 10.0, "warn_high": 60.0,  "flag_low": 5.0,  "flag_high": 80.0 },
+      "ndf_pct_dm":            { "warn_low": 15.0, "warn_high": 75.0,  "flag_low": 8.0,  "flag_high": 90.0 },
+      "crude_fat_pct_dm":      { "warn_low": 0.5,  "warn_high": 22.0,  "flag_low": 0.1,  "flag_high": 30.0 },
+      "ash_pct_dm":            { "warn_low": 2.0,  "warn_high": 18.0,  "flag_low": 0.5,  "flag_high": 30.0 },
+      "me_mj_kg_dm":           { "warn_low": 6.0,  "warn_high": 16.0,  "flag_low": 3.0,  "flag_high": 18.5 }
+    },
+    "silage_quality_bands": {
+      "EXCELLENT": { "ph_max": 3.9, "butyric_max_pct": 0.1,  "dmi_loss_max_pct": 3 },
+      "GOOD":      { "ph_max": 4.2, "butyric_max_pct": 0.3,  "dmi_loss_max_pct": 6 },
+      "FAIR":      { "ph_max": 4.5, "butyric_max_pct": 0.75, "dmi_loss_max_pct": 10 },
+      "POOR":      { "ph_max": 5.0, "butyric_max_pct": 1.5,  "dmi_loss_max_pct": 15 },
+      "REJECT":    { "ph_max": 9.9, "butyric_max_pct": 9.9,  "dmi_loss_max_pct": 99 }
+    },
+    "feed_grade_thresholds": {
+      "GRADE_A": { "min_cp": 18.0, "max_ndf": 45.0, "min_me": 11.0 },
+      "GRADE_B": { "min_cp": 12.0, "max_ndf": 58.0, "min_me": 9.5  },
+      "GRADE_C": { "min_cp": 8.0,  "max_ndf": 72.0, "min_me": 8.0  }
+    },
+    "aflatoxin_bands": {
+      "SAFE":   { "ppb_max": 10   },
+      "MEDIUM": { "ppb_max": 30   },
+      "HIGH":   { "ppb_max": 9999 },
+      "lab_referral_above_ppb": 20,
+      "_note": "NIR is screening only. Lab confirmation mandatory above 20ppb."
+    },
+    "ood_mahalanobis": {
+      "in_distribution_max": 12.5,
+      "warning_above": 9.0,
+      "_note": "Values from 99th percentile of training set. Recalibrate after adding >200 new samples."
+    }
+  },
+
+  "sources": {
+    "urea_detection": "BIS IS 2052:2009 / AOAC 967.07",
+    "silica_detection": "ICAR Animal Nutrition Division & BIS IS 7874",
+    "melamine_detection": "FSSAI Guidelines on Adulteration 2020",
+    "proximate_ranges": "NRC Nutrient Requirements of Dairy Cattle (8th Rev. 2021) & NDDB Benchmark Tables",
+    "silage_quality_bands": "Kung et al. (2018) Silage review: Fermentation & aerobic stability; ICAR Silage Standards",
+    "feed_grade_thresholds": "NDDB Cattle Feed Specifications (2019) & AAHAR Composite Quality Index",
+    "aflatoxin_bands": "FSSAI Food Safety and Standards (Contaminants, Toxins and Residues) Regulations, 2011 (Action level 20 ppb B1)",
+    "ood_mahalanobis": "De Maesschalck et al. (2000) The Mahalanobis distance in chemometrics"
+  },
+
+  "adulteration": {
+    "urea_prob_threshold": 0.40,
+    "silica_prob_threshold": 0.45,
+    "melamine_prob_threshold": 0.40,
+    "anomaly_recon_error_threshold": 0.035,
+    "_notes": "Urea detectable ≥0.5% DM; Silica ≥2% DM; Melamine ≥0.5% DM"
+  },
+
+  "proximate_ranges": {
+    "crude_protein_pct_dm": { "warn_low": 6.0,  "warn_high": 55.0,  "flag_low": 2.0,  "flag_high": 70.0 },
+    "moisture_pct":          { "warn_low": 6.0,  "warn_high": 85.0,  "flag_low": 3.0,  "flag_high": 90.0 },
+    "adf_pct_dm":            { "warn_low": 10.0, "warn_high": 60.0,  "flag_low": 5.0,  "flag_high": 80.0 },
+    "ndf_pct_dm":            { "warn_low": 15.0, "warn_high": 75.0,  "flag_low": 8.0,  "flag_high": 90.0 },
+    "crude_fat_pct_dm":      { "warn_low": 0.5,  "warn_high": 22.0,  "flag_low": 0.1,  "flag_high": 30.0 },
+    "ash_pct_dm":            { "warn_low": 2.0,  "warn_high": 18.0,  "flag_low": 0.5,  "flag_high": 30.0 },
+    "me_mj_kg_dm":           { "warn_low": 6.0,  "warn_high": 16.0,  "flag_low": 3.0,  "flag_high": 18.5 }
+  },
+
+  "silage_quality_bands": {
+    "EXCELLENT": { "ph_max": 3.9, "butyric_max_pct": 0.1,  "dmi_loss_max_pct": 3 },
+    "GOOD":      { "ph_max": 4.2, "butyric_max_pct": 0.3,  "dmi_loss_max_pct": 6 },
+    "FAIR":      { "ph_max": 4.5, "butyric_max_pct": 0.75, "dmi_loss_max_pct": 10 },
+    "POOR":      { "ph_max": 5.0, "butyric_max_pct": 1.5,  "dmi_loss_max_pct": 15 },
+    "REJECT":    { "ph_max": 9.9, "butyric_max_pct": 9.9,  "dmi_loss_max_pct": 99 }
+  },
+
+  "feed_grade_thresholds": {
+    "GRADE_A": { "min_cp": 18.0, "max_ndf": 45.0, "min_me": 11.0 },
+    "GRADE_B": { "min_cp": 12.0, "max_ndf": 58.0, "min_me": 9.5  },
+    "GRADE_C": { "min_cp": 8.0,  "max_ndf": 72.0, "min_me": 8.0  }
+  },
+
+  "aflatoxin_bands": {
+    "SAFE":   { "ppb_max": 10   },
+    "MEDIUM": { "ppb_max": 30   },
+    "HIGH":   { "ppb_max": 9999 },
+    "lab_referral_above_ppb": 20,
+    "_note": "NIR is screening only. Lab confirmation mandatory above 20ppb."
+  },
+
+  "ood_mahalanobis": {
+    "in_distribution_max": 12.5,
+    "warning_above": 9.0,
+    "_note": "Values from 99th percentile of training set. Recalibrate after adding >200 new samples."
+  }
+}

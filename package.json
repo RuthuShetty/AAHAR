@@ -1,0 +1,66 @@
+{
+  "name": "aahar-monorepo",
+  "version": "0.1.0",
+  "description": "AAHAR — AI-Assisted Health & Analysis of Ration. Smart NIR-based feed quality testing system for dairy farmers.",
+  "private": true,
+  "workspaces": [
+    "mobile",
+    "dashboard"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "codegen": "node contracts/codegen/gen_ts.mjs",
+    "codegen:all": "node contracts/codegen/gen_ts.mjs && cross-env PYTHONIOENCODING=utf-8 python contracts/codegen/gen_py.py && cross-env PYTHONIOENCODING=utf-8 python contracts/codegen/gen_cpp.py",
+    "validate": "node contracts/codegen/validate.mjs",
+    "preinstall": "node contracts/codegen/gen_ts.mjs",
+    "dev:cloud": "docker compose up -d && cd cloud && uvicorn app.main:app --reload",
+    "dev:mobile": "cd mobile && npx expo start",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "test:contracts": "node contracts/codegen/validate.mjs",
+    "test:cloud": "cd cloud && pytest tests/ -v",
+    "test:mobile": "cd mobile && npm test",
+    "test:dashboard": "cd dashboard && npm test",
+    "lint:ts": "eslint 'mobile/src/**/*.{ts,tsx}' 'dashboard/src/**/*.{ts,tsx}'",
+    "check-glb": "node scripts/check-glb-budget.mjs",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f api",
+    "ci:phase0": "npm run codegen:all && npm run validate"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.5.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": ["@typescript-eslint"],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/strict-type-checked"
+    ],
+    "parserOptions": {
+      "project": ["./mobile/tsconfig.json", "./dashboard/tsconfig.json"]
+    },
+    "rules": {
+      "no-console": "warn",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/strict-boolean-expressions": "error",
+      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "all",
+    "printWidth": 100
+  }
+}

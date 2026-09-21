@@ -1,0 +1,106 @@
+# AAHAR — Monorepo .gitignore
+
+# ─── Node ───────────────────────────────────────────────────────────────────
+node_modules/
+.npm
+*.log
+npm-debug.log*
+
+# ─── Python ─────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+*.egg
+htmlcov/
+coverage.xml
+.coverage
+
+# ─── Generated contracts (committed, but gitignore the hash files) ───────────
+# IMPORTANT: The generated TS/Python/C++ files ARE committed. Hash files are too.
+# Do NOT add contracts/codegen/.*.hash to gitignore.
+
+# ─── Build outputs ──────────────────────────────────────────────────────────
+mobile/.expo/
+mobile/dist/
+dashboard/dist/
+dashboard/build/
+firmware-handheld/build/
+firmware-probe/build/
+*.elf
+*.bin
+*.map
+
+# ─── Environment & secrets ──────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+secrets/
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.backup
+infra/terraform/.terraform.lock.hcl
+
+# ─── ML artefacts (large files → use DVC or LFS) ────────────────────────────
+ml/data/raw/
+ml/data/interim/
+ml/models/*.tflite
+ml/models/*.onnx
+ml/models/*.h5
+ml/models/*.pt
+ml/models/*.pkl
+# Note: Export scripts and model cards ARE committed.
+
+# ─── 3D assets (large files → use Git LFS) ──────────────────────────────────
+*.blend1
+*.blend2
+assets-3d/blender/*.blend
+# GLB files are committed (< 4 MB each). Source blends use LFS.
+
+# ─── OS artefacts ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+
+# ─── Docker ─────────────────────────────────────────────────────────────────
+infra/postgres/data/
+
+# ─── Test & coverage ────────────────────────────────────────────────────────
+mobile/coverage/
+dashboard/coverage/
+
+# ─── Runtime artefacts that were previously committed ───────────────────────
+# `media_uploads/` contained real uploaded spectra blobs and `aahar_cloud.db`
+# was a live SQLite database. Both were tracked in the repository.
+media_uploads/
+/var/lib/aahar/
+*.db
+*.sqlite
+*.sqlite3
+test_aahar.db
+
+# ─── Secrets ────────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!contracts/**/*.key
+secrets/

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/advisory",
+  "title": "Advisory",
+  "description": "Derived advisory record generated from a measurement + herd context. A local version is stored on-device. Server may recompute an authoritative version after sync. Both versions are kept.",
+  "version": 2,
+  "type": "object",
+  "required": ["measurement_id", "feed_grade", "actions", "ration_correction", "herd_impacts", "text"],
+  "additionalProperties": false,
+  "properties": {
+    "measurement_id": { "type": "string", "format": "uuid" },
+    "herd_id":        { "type": ["string","null"], "format": "uuid" },
+    "is_server_authoritative": {
+      "type": "boolean",
+      "description": "True = computed by cloud with full model context. False = computed on-device from local rule engine."
+    },
+    "computed_at":    { "type": "string", "format": "date-time" },
+    "feed_grade": {
+      "type": "string",
+      "enum": ["A","B","C","REJECT"]
+    },
+    "actions": {
+      "type": "array",
+      "description": "Ordered list of actions the farmer should take, highest priority first.",
+      "items": {
+        "type": "object",
+        "required": ["priority", "category", "action_key", "severity"],
+        "properties": {
+          "priority":   { "type": "integer", "minimum": 1 },
+          "category":   { "type": "string", "enum": ["SAFETY","STORAGE","FEEDING","VETERINARY","LAB_REFERRAL","ECONOMIC"] },
+          "action_key": { "type": "string", "description": "Machine-readable key resolved to locale string in the UI." },
+          "action_params": {
+            "type": "object",
+            "description": "Interpolation parameters for the action string template.",
+            "additionalProperties": {}
+          },
+          "severity":   { "type": "string", "enum": ["INFO","CAUTION","CRITICAL"] },
+          "lab_name":   { "type": ["string","null"], "description": "Nearest NABL lab name. Only set for LAB_REFERRAL category." },
+          "lab_address":{ "type": ["string","null"] },
+          "lab_phone":  { "type": ["string","null"] }
+        }
+      }
+    },
+    "ration_correction": {
+      "type": ["object","null"],
+      "description": "Specific ration adjustment for this herd + this feed result. Null if no herd profile set.",
+      "properties": {
+        "summary_key": { "type": "string", "description": "Advisory template key, e.g. 'add_mustard_cake'." },
+        "adjustments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["feed_type", "change_kg_per_animal_per_day"],
+            "properties": {
+              "feed_type": { "type": "string" },
+              "change_kg_per_animal_per_day": { "type": "number", "description": "Positive = add, negative = reduce." },
+              "rationale_key": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "herd_impacts": {
+      "type": "array",
+      "description": "Body system impacts for the S5 Herd Impact 3D scene. Each entry maps to a highlighted region on the cow model.",
+      "items": {
+        "type": "object",
+        "required": ["body_system", "severity", "explanation_key"],
+        "properties": {
+          "body_system":     { "type": "string", "enum": ["RUMEN","UDDER","LIVER","SKELETON","REPRODUCTIVE","IMMUNE","GENERAL"] },
+          "severity":        { "type": "string", "enum": ["INFO","CAUTION","CRITICAL"] },
+          "explanation_key": { "type": "string", "description": "Template key for tap-to-explain text and TTS." },
+          "fix_key":         { "type": ["string","null"], "description": "Template key for the specific fix action." }
+        }
+      }
+    },
+    "value_for_money_summary_key": {
+      "type": ["string","null"],
+      "description": "e.g. 'overpriced_protein'. Resolved to locale string with params."
+    },
+    "value_for_money_params": {
+      "type": ["object","null"],
+      "additionalProperties": {}
+    },
+    "text": {
+      "type": "object",
+      "description": "Pre-rendered advisory text keyed by Language enum key. All 8 languages populated before the record is stored.",
+      "required": ["en"],
+      "properties": {
+        "en": { "type": "string" },
+        "hi": { "type": "string" },
+        "pa": { "type": "string" },
+        "mr": { "type": "string" },
+        "gu": { "type": "string" },
+        "te": { "type": "string" },
+        "kn": { "type": "string" },
+        "bn": { "type": "string" }
+      }
+    },
+    "tts_ids": {
+      "type": "object",
+      "description": "UUIDv7s of pre-generated TTS audio files, keyed by language. Bundled offline.",
+      "additionalProperties": { "type": "string", "format": "uuid" }
+    }
+  }
+}

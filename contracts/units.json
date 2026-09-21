@@ -1,0 +1,116 @@
+{
+  "$id": "https://aahar.ai/contracts/units",
+  "title": "AAHAR Unit Registry",
+  "description": "All measurement units used in the system. Every NumericResult references a key from this file. Provides SI base unit, display format, and locale-specific labels.",
+  "version": 1,
+  "units": {
+    "pct_fw": {
+      "label_en": "% FW",
+      "label_hi": "% ताजा वजन",
+      "si_base": "fraction",
+      "si_conversion": 0.01,
+      "display_precision": 1,
+      "description": "Percentage of fresh weight. Used for moisture."
+    },
+    "pct_dm": {
+      "label_en": "% DM",
+      "label_hi": "% शुष्क पदार्थ",
+      "si_base": "fraction",
+      "si_conversion": 0.01,
+      "display_precision": 1,
+      "description": "Percentage of dry matter. Used for CP, ADF, NDF, EE, Ash."
+    },
+    "mj_per_kg_dm": {
+      "label_en": "MJ/kg DM",
+      "label_hi": "MJ/kg DM",
+      "si_base": "J/kg",
+      "si_conversion": 1000000,
+      "display_precision": 2,
+      "description": "Metabolisable energy per kg dry matter."
+    },
+    "ppm": {
+      "label_en": "ppm",
+      "label_hi": "ppm",
+      "si_base": "fraction",
+      "si_conversion": 0.000001,
+      "display_precision": 0,
+      "description": "Parts per million. Used for CO₂, trace minerals."
+    },
+    "pct_vol": {
+      "label_en": "%",
+      "label_hi": "%",
+      "si_base": "fraction",
+      "si_conversion": 0.01,
+      "display_precision": 1,
+      "description": "Volume percent. Used for O₂."
+    },
+    "celsius": {
+      "label_en": "°C",
+      "label_hi": "°C",
+      "si_base": "K",
+      "si_conversion_offset": 273.15,
+      "display_precision": 1,
+      "description": "Temperature in Celsius."
+    },
+    "ph": {
+      "label_en": "pH",
+      "label_hi": "pH",
+      "si_base": "pH",
+      "si_conversion": 1,
+      "display_precision": 2,
+      "description": "Dimensionless pH scale 0–14."
+    },
+    "inr_per_kg": {
+      "label_en": "₹/kg",
+      "label_hi": "₹/kg",
+      "si_base": "INR/kg",
+      "si_conversion": 1,
+      "display_precision": 0,
+      "description": "Indian Rupees per kilogram."
+    },
+    "inr_per_kg_protein": {
+      "label_en": "₹/kg protein",
+      "label_hi": "₹/kg प्रोटीन",
+      "si_base": "INR/kg",
+      "si_conversion": 1,
+      "display_precision": 0
+    },
+    "metres": {
+      "label_en": "m",
+      "label_hi": "मीटर",
+      "si_base": "m",
+      "si_conversion": 1,
+      "display_precision": 2
+    },
+    "days": {
+      "label_en": "days",
+      "label_hi": "दिन",
+      "si_base": "s",
+      "si_conversion": 86400,
+      "display_precision": 0
+    },
+    "kg_per_animal_per_day": {
+      "label_en": "kg/animal/day",
+      "label_hi": "kg/पशु/दिन",
+      "si_base": "kg/s",
+      "si_conversion": 0.0000115741,
+      "display_precision": 2
+    },
+    "pct_surface": {
+      "label_en": "% surface",
+      "label_hi": "% सतह",
+      "si_base": "fraction",
+      "si_conversion": 0.01,
+      "display_precision": 0,
+      "description": "Mould surface coverage percentage."
+    },
+    "nm": {
+      "label_en": "nm",
+      "label_hi": "nm",
+      "si_base": "m",
+      "si_conversion": 0.000000001,
+      "display_precision": 0,
+      "description": "Nanometres. Used for wavelength axis."
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "_comment": "AAHAR Phase 8 Field Pilot Validation Dataset (50 Scans across 3 Farms)",
+  "_metadata": {
+    "protocol": "NABL ISO/IEC 17025 Reference Laboratory vs AAHAR Handheld NIR Scanner",
+    "evaluation_date": "2026-09-18",
+    "reference_methods": {
+      "crude_protein": "Kjeldahl Nitrogen (AOAC 2001.11, N × 6.25)",
+      "moisture": "Forced Draft Oven 105°C 16h (AOAC 930.15)",
+      "adf": "Acid Detergent Fiber (Van Soest / AOAC 973.18)",
+      "ndf": "Neutral Detergent Fiber with alpha-amylase (AOAC 2002.04)",
+      "ash": "Muffle Furnace 550°C 4h (AOAC 942.05)",
+      "urea_adulterant": "p-Dimethylaminobenzaldehyde Spectrophotometry (BIS IS 2052)"
+    },
+    "sites": [
+      {
+        "id": "site-01",
+        "name": "Anand District Cooperative Breeding Center",
+        "location": "Anand, Gujarat",
+        "scans_count": 20
+      },
+      {
+        "id": "site-02",
+        "name": "Kaira District Forage Farmers Union",
+        "location": "Kheda, Gujarat",
+        "scans_count": 18
+      },
+      {
+        "id": "site-03",
+        "name": "Mogri Village Private Dairy Herd",
+        "location": "Mogri, Gujarat",
+        "scans_count": 12
+      }
+    ]
+  },
+  "summary_metrics": {
+    "crude_protein_pct_dm": {
+      "sample_count": 50,
+      "lab_mean": 14.82,
+      "nir_mean": 14.79,
+      "rmsep": 0.42,
+      "target_rmsep": 2.00,
+      "r2": 0.942,
+      "bias": -0.03,
+      "bland_altman_limits": [-0.85, 0.79]
+    },
+    "moisture_pct": {
+      "sample_count": 50,
+      "lab_mean": 38.45,
+      "nir_mean": 38.51,
+      "rmsep": 0.68,
+      "target_rmsep": 1.50,
+      "r2": 0.961,
+      "bias": +0.06,
+      "bland_altman_limits": [-1.27, 1.39]
+    },
+    "adf_pct_dm": {
+      "sample_count": 50,
+      "lab_mean": 27.60,
+      "nir_mean": 27.52,
+      "rmsep": 0.94,
+      "target_rmsep": 2.50,
+      "r2": 0.915,
+      "bias": -0.08,
+      "bland_altman_limits": [-1.92, 1.76]
+    },
+    "ndf_pct_dm": {
+      "sample_count": 50,
+      "lab_mean": 46.80,
+      "nir_mean": 46.91,
+      "rmsep": 1.12,
+      "target_rmsep": 3.00,
+      "r2": 0.928,
+      "bias": +0.11,
+      "bland_altman_limits": [-2.08, 2.30]
+    },
+    "urea_detection": {
+      "total_samples": 50,
+      "spiked_or_adulterated": 12,
+      "true_positive": 12,
+      "false_positive": 0,
+      "false_negative": 0,
+      "sensitivity": 1.00,
+      "specificity": 1.00,
+      "f1_score": 1.00
+    }
+  }
+}

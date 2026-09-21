@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aahar.ai/contracts/schema/batch",
+  "title": "Batch",
+  "description": "Feed mill batch record for QR traceability. A mill registers a batch with its declared profile. Farmers scan the QR to compare declared vs measured. Mismatches trigger dispute records.",
+  "version": 2,
+  "type": "object",
+  "required": ["mill_id", "batch_code", "feed_type", "production_date", "declared_profile", "qr_payload"],
+  "additionalProperties": false,
+  "properties": {
+    "mill_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "UUID of the registered feed mill organisation."
+    },
+    "batch_code": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 50,
+      "description": "Mill's own batch/lot code. Displayed on the QR scan result."
+    },
+    "feed_type": { "type": "string", "description": "FeedType enum key." },
+    "production_date": { "type": "string", "format": "date" },
+    "expiry_date":     { "type": ["string","null"], "format": "date" },
+    "quantity_tonnes": { "type": ["number","null"], "minimum": 0 },
+    "declared_profile": {
+      "type": "object",
+      "description": "Mill's declared nutritional profile. Compared against farmer's measurement.",
+      "required": ["crude_protein_pct_dm", "moisture_pct"],
+      "properties": {
+        "crude_protein_pct_dm": { "type": "number", "minimum": 0, "maximum": 60 },
+        "moisture_pct":         { "type": "number", "minimum": 0, "maximum": 85 },
+        "adf_pct_dm":           { "type": ["number","null"] },
+        "ndf_pct_dm":           { "type": ["number","null"] },
+        "crude_fat_pct_dm":     { "type": ["number","null"] },
+        "ash_pct_dm":           { "type": ["number","null"] },
+        "me_mj_kg_dm":          { "type": ["number","null"] },
+        "lab_report_url":       { "type": ["string","null"], "format": "uri", "description": "NABL lab report PDF stored in MinIO." },
+        "lab_test_date":        { "type": ["string","null"], "format": "date" }
+      }
+    },
+    "qr_payload": {
+      "type": "string",
+      "description": "The exact string encoded in the QR code. Format: 'aahar://batch/{uuid}'. Scanned by farmer app."
+    },
+    "qr_signed": {
+      "type": "string",
+      "description": "Ed25519 signature of qr_payload. Verified on-device with bundled public key."
+    },
+    "disputes": {
+      "type": "array",
+      "description": "Dispute records created when farmer measurements deviate beyond tolerance from declared profile.",
+      "items": {
+        "type": "object",
+        "required": ["id", "measurement_id", "deviating_fields", "created_at", "status"],
+        "properties": {
+          "id":               { "type": "string", "format": "uuid" },
+          "measurement_id":   { "type": "string", "format": "uuid", "description": "The farmer's measurement that triggered the dispute." },
+          "farm_id":          { "type": "string", "format": "uuid" },
+          "deviating_fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["field", "declared", "measured", "deviation_pct"],
+              "properties": {
+                "field":          { "type": "string", "description": "e.g. 'crude_protein_pct_dm'" },
+                "declared":       { "type": "number" },
+                "measured":       { "type": "number" },
+                "deviation_pct":  { "type": "number", "description": "Absolute percentage deviation. Dispute triggered when > threshold from thresholds.json." },
+                "tolerance_used": { "type": "number", "description": "The tolerance threshold that was exceeded." }
+              }
+            }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "status": { "type": "string", "enum": ["OPEN","UNDER_REVIEW","RESOLVED_VALID","RESOLVED_INVALID","ESCALATED"] },
+          "fpo_note":   { "type": ["string","null"] },
+          "resolved_at":{ "type": ["string","null"], "format": "date-time" }
+        }
+      }
+    },
+    "aggregate_stats": {
+      "type": ["object","null"],
+      "description": "Cloud-computed aggregate from all farmer tests against this batch. Updated on sync.",
+      "properties": {
+        "test_count":     { "type": "integer" },
+        "avg_cp_measured":{ "type": ["number","null"] },
+        "avg_deviation_cp":{ "type": ["number","null"] },
+        "dispute_count":  { "type": "integer" },
+        "last_tested_at": { "type": ["string","null"], "format": "date-time" }
+      }
+    }
+  }
+}
